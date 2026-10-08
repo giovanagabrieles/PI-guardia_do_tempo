@@ -36,7 +36,7 @@ int main() {
             }
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
 
-                if (evento.keyboard.keycode == ALLEGRO_KEY_SPACE && noChao) {
+                if (evento.keyboard.keycode == ALLEGRO_KEY_SPACE && noChao || evento.keyboard.keycode == ALLEGRO_KEY_UP && noChao || evento.keyboard.keycode == ALLEGRO_KEY_W && noChao) {
                     velocidadeY = -10;
                     noChao = false;
                 }
@@ -50,22 +50,13 @@ int main() {
         ALLEGRO_KEYBOARD_STATE teclado;
         al_get_keyboard_state(&teclado);
 
-        if (al_key_down(&teclado, ALLEGRO_KEY_A)) {
+        if (al_key_down(&teclado, ALLEGRO_KEY_A) || al_key_down(&teclado, ALLEGRO_KEY_LEFT)) {
             x -= velocidade;
         }
 
-        if (al_key_down(&teclado, ALLEGRO_KEY_D)) {
+        if (al_key_down(&teclado, ALLEGRO_KEY_D) || al_key_down(&teclado, ALLEGRO_KEY_RIGHT)) {
             x += velocidade;
         }
-
-        if (al_key_down(&teclado, ALLEGRO_KEY_LEFT)) {
-            x -= velocidade;
-        }
-
-        if (al_key_down(&teclado, ALLEGRO_KEY_RIGHT)) {
-            x += velocidade;
-        }
-
 
         velocidadeY += gravidade;
         y += velocidadeY;
@@ -86,7 +77,7 @@ int main() {
         }
 
 
-        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_clear_to_color(al_map_rgb(255, 0, 0));
 
 
         al_draw_line(0, 580, 600, 580, al_map_rgb(255, 255, 255), 2.0);

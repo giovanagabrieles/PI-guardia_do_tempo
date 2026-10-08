@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Guardia do Tempo/Guardia do Tempo.vcxproj" />
+  <Project Path="Guardia do Tempo/Guardia do Tempo.vcxproj" Id="2687db8e-7d17-43be-82fe-b9473ae7fb5d" />
 </Solution>

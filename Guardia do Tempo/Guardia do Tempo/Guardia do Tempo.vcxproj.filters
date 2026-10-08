@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Guardia do Tempo.c">
+    <ClCompile Include="Main.c">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
   </ItemGroup>
