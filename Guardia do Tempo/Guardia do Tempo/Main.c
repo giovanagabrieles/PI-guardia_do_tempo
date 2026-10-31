@@ -2,101 +2,111 @@
 #include <allegro5/allegro_primitives.h>
 
 int main() {
+    // INICIALIZACAO DO ALLEGRO E ADDON PRIMITIVAS
     al_init();
     al_init_primitives_addon();
 
-    ALLEGRO_DISPLAY* display = al_create_display(600, 600);
+    ALLEGRO_DISPLAY* display = al_create_display(600, 600); // TELA
 
-    float x = 50;
-    float y = 300;
-    float velocidade = 4;
-    float velocidadeY = 0;
+    float posicaoX = 50;
+    float posicaoY = 300;
+    float velocidadeHorizontal = 4;
+    float velocidadeVertical = 0;
     float gravidade = 0.5;
-    float largura = 30;
-    float altura = 40;
+    float larguraPersonagem = 30;
+    float alturaPersonagem = 40;
 
-    bool noChao = false;
+    bool estaNoChao = false; //INDICA SE O PERSONAGEM ESTA NO CHAO
 
     ALLEGRO_EVENT_QUEUE* fila = al_create_event_queue();
 
-    al_install_keyboard();
+    al_install_keyboard();     //INICIALIZACAO DO TECLADO
 
-    al_register_event_source(fila, al_get_keyboard_event_source());
+    al_register_event_source(fila, al_get_keyboard_event_source());     //REGISTRO DA FONTE DE EVENTOS DO TECLADO
 
-    bool jogo = true;
+    al_register_event_source(fila, al_get_display_event_source(display));     //REGISTRO DOS EVENTOS DA JANELA
 
-    while (jogo) {
+
+    bool jogoEmExecucao = true; 
+
+    //LOOP PRINCIPAL
+    while (jogoEmExecucao) {
 
         ALLEGRO_EVENT evento;
 
+        //LEITURA DOS EVENTOS
         while (al_get_next_event(fila, &evento)) {
 
             if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-                jogo = false;
+                jogoEmExecucao = false;
             }
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
 
-                if (evento.keyboard.keycode == ALLEGRO_KEY_SPACE && noChao || evento.keyboard.keycode == ALLEGRO_KEY_UP && noChao || evento.keyboard.keycode == ALLEGRO_KEY_W && noChao) {
-                    velocidadeY = -10;
-                    noChao = false;
+                if (evento.keyboard.keycode == ALLEGRO_KEY_SPACE && estaNoChao ||
+                    evento.keyboard.keycode == ALLEGRO_KEY_UP && estaNoChao ||
+                    evento.keyboard.keycode == ALLEGRO_KEY_W && estaNoChao) {
+                    velocidadeVertical = -10;
+                    estaNoChao = false;
                 }
 
                 if (evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-                    jogo = false;
+                    jogoEmExecucao = false;
                 }
             }
         }
-
+        //MOVIMENTACAO PERSONAGEM
         ALLEGRO_KEYBOARD_STATE teclado;
         al_get_keyboard_state(&teclado);
 
         if (al_key_down(&teclado, ALLEGRO_KEY_A) || al_key_down(&teclado, ALLEGRO_KEY_LEFT)) {
-            x -= velocidade;
+            posicaoX -= velocidadeHorizontal;
         }
 
         if (al_key_down(&teclado, ALLEGRO_KEY_D) || al_key_down(&teclado, ALLEGRO_KEY_RIGHT)) {
-            x += velocidade;
+            posicaoX += velocidadeHorizontal;
         }
 
-        velocidadeY += gravidade;
-        y += velocidadeY;
+        //GRAVIDADE E MOVIMENTO VERTICAL
+        velocidadeVertical += gravidade;
+        posicaoY += velocidadeVertical;
 
-
-        if (y + altura >= 580) {
-            y = 580 - altura;
-            velocidadeY = 0;
-            noChao = true;
+        //COLISAO COM CHAO
+        if (posicaoY + alturaPersonagem >= 580) {
+            posicaoY = 580 - alturaPersonagem;
+            velocidadeVertical = 0;
+            estaNoChao = true;
         }
 
-        if (x < 0) {
-            x = 0;
+        //LIMITES DA TELA
+        if (posicaoX < 0) {
+            posicaoX = 0;
         }
 
-        if (x + largura > 600) {
-            x = 600 - largura;
+        if (posicaoX + larguraPersonagem > 600) {
+            posicaoX = 600 - larguraPersonagem;
         }
 
-
+        //DESENHO CENARIO E PERSONAGEM
         al_clear_to_color(al_map_rgb(255, 0, 0));
 
 
         al_draw_line(0, 580, 600, 580, al_map_rgb(255, 255, 255), 2.0);
 
         al_draw_filled_rectangle(
-            x,
-            y,
-            x + largura,
-            y + altura,
+            posicaoX,
+            posicaoY,
+            posicaoX + larguraPersonagem,
+            posicaoY + alturaPersonagem,
             al_map_rgb(0, 100, 255));
 
 
         al_flip_display();
 
 
-        al_rest(0.01);
+        al_rest(0.01); //ATUALIZAÇAO DO JOGO
     }
 
-
+    //FINALIZAÇAO E LIBERAÇAO DE RECURSOS
     al_destroy_event_queue(fila);
     al_destroy_display(display);
 
