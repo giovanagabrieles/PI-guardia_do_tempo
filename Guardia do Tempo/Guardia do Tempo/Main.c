@@ -1,5 +1,6 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
 
 //PLATAFORMAS
 typedef struct {
@@ -14,8 +15,10 @@ int main() {
     // INICIALIZACAO DO ALLEGRO E ADDON PRIMITIVAS
     al_init();
     al_init_primitives_addon();
+    al_init_font_addon();
 
     ALLEGRO_DISPLAY* display = al_create_display(1280, 720); // TELA
+    ALLEGRO_FONT* fonte = al_create_builtin_font();
 
     float posicaoX = 50;
     float posicaoY = 300;
@@ -29,12 +32,17 @@ int main() {
     float cameraX = 0;
     float larguraCenario = 2400;
 
+    int vidas = 5;
+
 
     //PLATAFORMAS
-    plataforma plataformas[3] = {
-        {0, 600, 150, 15},
-        {250, 525, 350, 15},
-        {100, 450, 350, 15}
+    plataforma plataformas[6] = {
+        {0, 500, 150, 15},
+        {200, 425, 350, 15},
+        {500, 500, 300, 15},
+        {800, 425, 250, 15},
+        {1100, 350, 300, 15},
+        {1450, 425, 350, 15}
     };
 
 
@@ -97,7 +105,7 @@ int main() {
         posicaoY += velocidadeVertical;
 
         //COLISAO COM PLATAFORMAS
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             if (velocidadeVertical > 0 &&
                 posicaoYAnterior + alturaPersonagem <= plataformas[i].y &&
                 posicaoY + alturaPersonagem >= plataformas[i].y &&
@@ -148,9 +156,12 @@ int main() {
         al_draw_line(-cameraX, 680, larguraCenario - cameraX, 680,
             al_map_rgb(255, 255, 255), 2.0);
 
+        //VIDAS
+        al_draw_textf(fonte, al_map_rgb(255, 255, 255), 20, 20, 0, "Vidas: %d",vidas);
+
 
         //DESENHO DAS PLATAFORMAS
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             al_draw_filled_rectangle(
                 plataformas[i].x - cameraX,
                 plataformas[i].y,
@@ -178,6 +189,7 @@ int main() {
     //FINALIZAÇAO E LIBERAÇAO DE RECURSOS
     al_destroy_event_queue(fila);
     al_destroy_display(display);
+    al_destroy_font(fonte);
 
     return 0;
 }
