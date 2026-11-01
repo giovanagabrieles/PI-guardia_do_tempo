@@ -15,7 +15,7 @@ int main() {
     al_init();
     al_init_primitives_addon();
 
-    ALLEGRO_DISPLAY* display = al_create_display(600, 600); // TELA
+    ALLEGRO_DISPLAY* display = al_create_display(1280, 720); // TELA
 
     float posicaoX = 50;
     float posicaoY = 300;
@@ -25,12 +25,16 @@ int main() {
     float larguraPersonagem = 30;
     float alturaPersonagem = 40;
 
+    //CAMERA E CENARIO
+    float cameraX = 0;
+    float larguraCenario = 2400;
+
 
     //PLATAFORMAS
     plataforma plataformas[3] = {
-        {0, 500, 150, 15},
-        {250, 425, 350, 15},
-        {100, 350, 350, 15}
+        {0, 600, 150, 15},
+        {250, 525, 350, 15},
+        {100, 450, 350, 15}
     };
 
 
@@ -97,7 +101,7 @@ int main() {
             if (velocidadeVertical > 0 &&
                 posicaoYAnterior + alturaPersonagem <= plataformas[i].y &&
                 posicaoY + alturaPersonagem >= plataformas[i].y &&
-                posicaoX + alturaPersonagem > plataformas[i].x &&
+                posicaoX + larguraPersonagem > plataformas[i].x &&
                 posicaoX < plataformas[i].x + plataformas[i].largura) {
 
                 posicaoY = plataformas[i].y - alturaPersonagem;
@@ -109,8 +113,8 @@ int main() {
         }
 
         //COLISAO COM CHAO
-        if (posicaoY + alturaPersonagem >= 580) {
-            posicaoY = 580 - alturaPersonagem;
+        if (posicaoY + alturaPersonagem >= 680) {
+            posicaoY = 680 - alturaPersonagem;
             velocidadeVertical = 0;
             estaNoChao = true;
         }
@@ -120,23 +124,37 @@ int main() {
             posicaoX = 0;
         }
 
-        if (posicaoX + larguraPersonagem > 600) {
-            posicaoX = 600 - larguraPersonagem;
+        if (posicaoX + larguraPersonagem > larguraCenario) {
+            posicaoX = larguraCenario - larguraPersonagem;
         }
+
+        //MOVIMENTACAO DA CAMERA
+        float cameraFoco = posicaoX + larguraPersonagem / 2 - 640;
+
+        if (cameraFoco < 0) {
+            cameraFoco = 0;
+        }
+
+        if (cameraFoco > larguraCenario - 1280) {
+            cameraFoco = larguraCenario - 1280;
+        }
+
+        cameraX += (cameraFoco - cameraX) * 0.1;
 
         //DESENHO CENARIO E PERSONAGEM
         al_clear_to_color(al_map_rgb(5, 207, 250));
 
 
-        al_draw_line(0, 580, 600, 580, al_map_rgb(255, 255, 255), 2.0);
+        al_draw_line(-cameraX, 680, larguraCenario - cameraX, 680,
+            al_map_rgb(255, 255, 255), 2.0);
 
 
         //DESENHO DAS PLATAFORMAS
         for (int i = 0; i < 3; i++) {
             al_draw_filled_rectangle(
-                plataformas[i].x,
+                plataformas[i].x - cameraX,
                 plataformas[i].y,
-                plataformas[i].x + plataformas[i].largura,
+                plataformas[i].x + plataformas[i].largura - cameraX,
                 plataformas[i].y + plataformas[i].altura,
                 al_map_rgb(31, 150, 12)
 
@@ -144,9 +162,9 @@ int main() {
         }
 
         al_draw_filled_rectangle(
-            posicaoX,
+            posicaoX - cameraX,
             posicaoY,
-            posicaoX + larguraPersonagem,
+            posicaoX + larguraPersonagem - cameraX,
             posicaoY + alturaPersonagem,
             al_map_rgb(237, 61, 17));
 
