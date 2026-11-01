@@ -1,6 +1,15 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
+//PLATAFORMAS
+typedef struct {
+    float x;
+    float y;
+    float largura;
+    float altura;
+} plataforma;
+
+
 int main() {
     // INICIALIZACAO DO ALLEGRO E ADDON PRIMITIVAS
     al_init();
@@ -15,6 +24,15 @@ int main() {
     float gravidade = 0.5;
     float larguraPersonagem = 30;
     float alturaPersonagem = 40;
+
+
+    //PLATAFORMAS
+    plataforma plataformas[3] = {
+        {0, 500, 150, 15},
+        {250, 425, 350, 15},
+        {100, 350, 350, 15}
+    };
+
 
     bool estaNoChao = false; //INDICA SE O PERSONAGEM ESTA NO CHAO
 
@@ -67,8 +85,28 @@ int main() {
         }
 
         //GRAVIDADE E MOVIMENTO VERTICAL
+        float posicaoYAnterior = posicaoY;
+
+        estaNoChao = false;
+
         velocidadeVertical += gravidade;
         posicaoY += velocidadeVertical;
+
+        //COLISAO COM PLATAFORMAS
+        for (int i = 0; i < 3; i++) {
+            if (velocidadeVertical > 0 &&
+                posicaoYAnterior + alturaPersonagem <= plataformas[i].y &&
+                posicaoY + alturaPersonagem >= plataformas[i].y &&
+                posicaoX + alturaPersonagem > plataformas[i].x &&
+                posicaoX < plataformas[i].x + plataformas[i].largura) {
+
+                posicaoY = plataformas[i].y - alturaPersonagem;
+                velocidadeVertical = 0;
+                estaNoChao = true;
+
+            }
+
+        }
 
         //COLISAO COM CHAO
         if (posicaoY + alturaPersonagem >= 580) {
@@ -87,17 +125,30 @@ int main() {
         }
 
         //DESENHO CENARIO E PERSONAGEM
-        al_clear_to_color(al_map_rgb(255, 0, 0));
+        al_clear_to_color(al_map_rgb(5, 207, 250));
 
 
         al_draw_line(0, 580, 600, 580, al_map_rgb(255, 255, 255), 2.0);
+
+
+        //DESENHO DAS PLATAFORMAS
+        for (int i = 0; i < 3; i++) {
+            al_draw_filled_rectangle(
+                plataformas[i].x,
+                plataformas[i].y,
+                plataformas[i].x + plataformas[i].largura,
+                plataformas[i].y + plataformas[i].altura,
+                al_map_rgb(31, 150, 12)
+
+            );
+        }
 
         al_draw_filled_rectangle(
             posicaoX,
             posicaoY,
             posicaoX + larguraPersonagem,
             posicaoY + alturaPersonagem,
-            al_map_rgb(0, 100, 255));
+            al_map_rgb(237, 61, 17));
 
 
         al_flip_display();
