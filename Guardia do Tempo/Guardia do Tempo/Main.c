@@ -43,6 +43,8 @@ int main() {
     int vidas = 5;
     bool invulneravel = false;
     float tempoInvulneravel = 0;
+    bool personagemVisivel = true;
+    bool derrota = false;
 
 
     //PLATAFORMAS
@@ -103,13 +105,23 @@ int main() {
             }
         }
 
+        //IMPEDIR MOVIMENTOS APÓS DERROTA
+        if (derrota) {
+            al_rest(0.01);
+            continue;
+        }
+
         //TEMPORIZADOR DE INVUNERABILIDADE
         if (invulneravel) {
             tempoInvulneravel += 0.01;
-
-            if (tempoInvulneravel >= 1.0) {
+             
+            //EFEITO DE DANO
+            personagemVisivel = ((int)(tempoInvulneravel * 10) % 2 == 0);
+            
+            if (tempoInvulneravel >= 2.0) {
                 invulneravel = false;
                 tempoInvulneravel = 0;
+                personagemVisivel = true;
             }
         }
 
@@ -179,6 +191,12 @@ int main() {
         }
 
 
+        //PERDA DE VIDAS
+        if (vidas <= 0) {
+            derrota = true;
+        }
+
+
         //LIMITES DA TELA
         if (posicaoX < 0) {
             posicaoX = 0;
@@ -241,12 +259,22 @@ int main() {
 
 
         //DESENHO PERSONAGEM
-        al_draw_filled_rectangle(
-            posicaoX - cameraX,
-            posicaoY,
-            posicaoX + larguraPersonagem - cameraX,
-            posicaoY + alturaPersonagem,
-            al_map_rgb(237, 61, 17));
+        if (personagemVisivel) {
+            al_draw_filled_rectangle(
+                posicaoX - cameraX,
+                posicaoY,
+                posicaoX + larguraPersonagem - cameraX,
+                posicaoY + alturaPersonagem,
+                al_map_rgb(237, 61, 17));
+        }
+
+        //TELA DE DERROTA
+        if (derrota) {
+            al_clear_to_color(al_map_rgb(82, 7, 7));
+
+            al_draw_text(fonte, al_map_rgb(250, 250, 250), 640, 350, ALLEGRO_ALIGN_CENTER, "Fim De Jogo!");
+
+        }
 
 
         al_flip_display();
