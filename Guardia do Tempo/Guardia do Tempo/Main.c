@@ -10,6 +10,14 @@ typedef struct {
     float altura;
 } plataforma;
 
+//OBSTACULOS
+typedef struct {
+    float x;
+    float y;
+    float largura;
+    float altura;
+} obstaculo;
+
 
 int main() {
     // INICIALIZACAO DO ALLEGRO E ADDON PRIMITIVAS
@@ -33,6 +41,8 @@ int main() {
     float larguraCenario = 2400;
 
     int vidas = 5;
+    bool invulneravel = false;
+    float tempoInvulneravel = 0;
 
 
     //PLATAFORMAS
@@ -44,6 +54,14 @@ int main() {
         {1100, 350, 300, 15},
         {1450, 425, 350, 15}
     };
+        int qtdPlataformas = sizeof(plataformas) / sizeof(plataformas[0]);
+
+
+    //OBSTACULOS
+    obstaculo obstaculos[1] = {
+        {650, 650, 40, 30}
+    };
+        int qtdObstaculos = sizeof(obstaculos) / sizeof(obstaculos[0]);
 
 
     bool estaNoChao = false; //INDICA SE O PERSONAGEM ESTA NO CHAO
@@ -84,6 +102,18 @@ int main() {
                 }
             }
         }
+
+        //TEMPORIZADOR DE INVUNERABILIDADE
+        if (invulneravel) {
+            tempoInvulneravel += 0.01;
+
+            if (tempoInvulneravel >= 1.0) {
+                invulneravel = false;
+                tempoInvulneravel = 0;
+            }
+        }
+
+
         //MOVIMENTACAO PERSONAGEM
         ALLEGRO_KEYBOARD_STATE teclado;
         al_get_keyboard_state(&teclado);
@@ -96,6 +126,7 @@ int main() {
             posicaoX += velocidadeHorizontal;
         }
 
+
         //GRAVIDADE E MOVIMENTO VERTICAL
         float posicaoYAnterior = posicaoY;
 
@@ -104,8 +135,9 @@ int main() {
         velocidadeVertical += gravidade;
         posicaoY += velocidadeVertical;
 
+
         //COLISAO COM PLATAFORMAS
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < qtdPlataformas; i++) {
             if (velocidadeVertical > 0 &&
                 posicaoYAnterior + alturaPersonagem <= plataformas[i].y &&
                 posicaoY + alturaPersonagem >= plataformas[i].y &&
@@ -120,12 +152,32 @@ int main() {
 
         }
 
+
         //COLISAO COM CHAO
         if (posicaoY + alturaPersonagem >= 680) {
             posicaoY = 680 - alturaPersonagem;
             velocidadeVertical = 0;
             estaNoChao = true;
         }
+
+
+        //COLISAO COM OBSTACULO
+        for (int i = 0; i < qtdObstaculos; i++) {
+            if (!invulneravel &&
+                posicaoX + larguraPersonagem > obstaculos[i].x &&
+                posicaoX < obstaculos[i].x + obstaculos[i].largura &&
+                posicaoY + alturaPersonagem > obstaculos[i].y &&
+                posicaoY < obstaculos[i].y + obstaculos[i].altura) {
+
+                vidas--;
+                invulneravel = true;
+                posicaoX = 50;
+                posicaoY = 300;
+                velocidadeVertical = 0;
+                cameraX = 0;
+            }
+        }
+
 
         //LIMITES DA TELA
         if (posicaoX < 0) {
@@ -135,6 +187,7 @@ int main() {
         if (posicaoX + larguraPersonagem > larguraCenario) {
             posicaoX = larguraCenario - larguraPersonagem;
         }
+
 
         //MOVIMENTACAO DA CAMERA
         float cameraFoco = posicaoX + larguraPersonagem / 2 - 640;
@@ -149,19 +202,21 @@ int main() {
 
         cameraX += (cameraFoco - cameraX) * 0.1;
 
-        //DESENHO CENARIO E PERSONAGEM
+
+        //DESENHO CENARIO 
         al_clear_to_color(al_map_rgb(5, 207, 250));
 
 
         al_draw_line(-cameraX, 680, larguraCenario - cameraX, 680,
             al_map_rgb(255, 255, 255), 2.0);
 
+
         //VIDAS
         al_draw_textf(fonte, al_map_rgb(255, 255, 255), 20, 20, 0, "Vidas: %d",vidas);
 
 
         //DESENHO DAS PLATAFORMAS
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < qtdPlataformas; i++) {
             al_draw_filled_rectangle(
                 plataformas[i].x - cameraX,
                 plataformas[i].y,
@@ -172,6 +227,20 @@ int main() {
             );
         }
 
+
+        //DESENHO OBSTACULOS
+        for (int i = 0; i < qtdObstaculos; i++) {
+            al_draw_filled_rectangle(
+                obstaculos[i].x - cameraX,
+                obstaculos[i].y,
+                obstaculos[i].x + obstaculos[i].largura - cameraX,
+                obstaculos[i].y + obstaculos[i].altura,
+                al_map_rgb(200, 0, 0)
+            );
+        }
+
+
+        //DESENHO PERSONAGEM
         al_draw_filled_rectangle(
             posicaoX - cameraX,
             posicaoY,
