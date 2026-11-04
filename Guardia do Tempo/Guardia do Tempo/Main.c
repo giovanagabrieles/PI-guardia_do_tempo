@@ -16,6 +16,13 @@ typedef struct {
     float x, y, largura, altura;
 } obstaculo;
 
+// OBJETO INTERATIVO
+typedef struct {
+    float x, y, largura, altura;
+    char titulo[60];
+    char descricao[300];
+} objetoInterativo;
+
 // ESTADOS DO JOGO
 typedef enum {
     MENU,
@@ -94,6 +101,16 @@ int main()
     float larguraPersonagem = 30;
     float alturaPersonagem = 40;
 
+    // TESTE DE OBJETO INTERATIVO HISTÓRICO
+    objetoInterativo objetoTeste = {
+    350, 385, 30, 30,
+    "Objeto misterioso",
+    "Este é um texto de exemplo. Uma informação histórica sera apresentada sobre este objeto. Teste 1"
+    };
+
+    bool mostrarInformacao = false;
+    bool pertoDoObjeto = false;
+
     // CAMERA E CENARIO
     float cameraX = 0;
     float larguraCenario = 2400;
@@ -129,6 +146,7 @@ int main()
         velocidadeVertical = 0; cameraX = 0; vidas = 5; \
         invulneravel = false; tempoInvulneravel = 0; \
         personagemVisivel = true; derrota = false; estaNoChao = false; \
+        mostrarInformacao = false; pertoDoObjeto = false; \
     } while (0)
 
     while (jogoEmExecucao) {
@@ -144,13 +162,23 @@ int main()
             if (estado == GAMEPLAY) {
                 if ((evento.keyboard.keycode == ALLEGRO_KEY_SPACE ||
                     evento.keyboard.keycode == ALLEGRO_KEY_UP ||
-                    evento.keyboard.keycode == ALLEGRO_KEY_W) && estaNoChao) {
+                    evento.keyboard.keycode == ALLEGRO_KEY_W) && estaNoChao && !mostrarInformacao) { // NÃO VAI PULAR ENQUANTO ESTIVER LENDO
                     velocidadeVertical = -10;
                     estaNoChao = false;
                 }
 
                 if (evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                     estado = PAUSA;
+
+                //TECLA DE INTERAÇÃO. ATUALMENTE ESTÁ NO E. APERTAR E DE NOVO FECHA A CAIXA
+                if (evento.keyboard.keycode == ALLEGRO_KEY_E) {
+                    if (mostrarInformacao) {
+                        mostrarInformacao = false;
+                    }
+                    else if (pertoDoObjeto) {
+                        mostrarInformacao = true;
+                    }
+                }
             }
             else if (estado == PAUSA &&
                 evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
@@ -221,7 +249,8 @@ int main()
                         personagemVisivel = true;
                     }
                 }
-
+          
+                if (!mostrarInformacao) {  // BLOQUEIA TODA MOVIMENTAÇÃO DO PERSONAGEM CASO A CAIXA DE TEXTO ESTIVER ABERTA
                 // MOVIMENTACAO PERSONAGEM
                 ALLEGRO_KEYBOARD_STATE teclado;
                 al_get_keyboard_state(&teclado);
@@ -233,6 +262,13 @@ int main()
                 if (al_key_down(&teclado, ALLEGRO_KEY_D) ||
                     al_key_down(&teclado, ALLEGRO_KEY_RIGHT))
                     posicaoX += velocidadeHorizontal;
+
+                // VERIFICAÇÃO SE O PERSONAGEM ESTÁ PERTO PARA INTERAGIR COM O OBJETO
+                pertoDoObjeto =
+                    posicaoX + larguraPersonagem >= objetoTeste.x - 40 &&
+                    posicaoX <= objetoTeste.x + objetoTeste.largura + 40 &&
+                    posicaoY + alturaPersonagem >= objetoTeste.y - 30 &&
+                    posicaoY <= objetoTeste.y + objetoTeste.altura + 30;
 
                 // GRAVIDADE E MOVIMENTO VERTICAL
                 float posicaoYAnterior = posicaoY;
@@ -298,6 +334,7 @@ int main()
                 // Substituir pela coleta do fragmento quando ela for implementada.
                 if (posicaoX >= larguraCenario - larguraPersonagem)
                     estado = VITORIA;
+                }
             }
         }
 
@@ -364,6 +401,69 @@ int main()
                         posicaoX + larguraPersonagem - cameraX,
                         posicaoY + alturaPersonagem,
                         al_map_rgb(237, 61, 17));
+                }
+
+                // DESENHA O OBJETO INTERATIVO
+                al_draw_filled_rectangle(
+                    objetoTeste.x - cameraX,
+                    objetoTeste.y,
+                    objetoTeste.x + objetoTeste.largura - cameraX,
+                    objetoTeste.y + objetoTeste.altura,
+                    al_map_rgb(255, 200, 0)
+                );
+
+                // MOSTRA INSTRUÇÃO PARA INTERAGIR
+                if (pertoDoObjeto && !mostrarInformacao) {
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(255, 255, 255),
+                        objetoTeste.x - cameraX,
+                        objetoTeste.y - 25,
+                        0,
+                        "E - Interagir"
+                    );
+                }
+
+                // CAIXA DE INFORMAÇÃO HISTÓRICA
+                if (mostrarInformacao) {
+
+                    al_draw_filled_rounded_rectangle(
+                        340, 200, 940, 520,
+                        20, 20,
+                        al_map_rgba(0, 0, 0, 230)
+                    );
+
+                    al_draw_rounded_rectangle(
+                        340, 200, 940, 520,
+                        20, 20,
+                        al_map_rgb(255, 200, 0),
+                        3
+                    );
+
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(255, 220, 0),
+                        640, 240,
+                        ALLEGRO_ALIGN_CENTER,
+                        objetoTeste.titulo
+                    );
+
+                    al_draw_multiline_text(
+                        fonte,
+                        al_map_rgb(255, 255, 255),
+                        390, 300,
+                        500, 30,
+                        0,
+                        objetoTeste.descricao
+                    );
+
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(200, 200, 200),
+                        640, 470,
+                        ALLEGRO_ALIGN_CENTER,
+                        "Aperte E para fechar"
+                    );
                 }
 
                 if (estado == PAUSA) {
