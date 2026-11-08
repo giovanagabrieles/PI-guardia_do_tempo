@@ -29,6 +29,7 @@ typedef enum {
     CARREGAR_JOGO,
     GAMEPLAY,
     PAUSA,
+    QUESTIONARIO,
     DERROTA,
     VITORIA
 } EstadoJogo;
@@ -101,15 +102,70 @@ int main()
     float larguraPersonagem = 30;
     float alturaPersonagem = 40;
 
-    // TESTE DE OBJETO INTERATIVO HISTÓRICO
-    objetoInterativo objetoTeste = {
-    350, 385, 30, 30,
-    "Objeto misterioso",
-    "Este é um texto de exemplo. Uma informação histórica sera apresentada sobre este objeto. Teste 1"
+
+   // OBJETOS HISTORICOS DO EGITO ANTIGO
+    objetoInterativo objetosHistoricos[3] = {
+        {
+            350, 395, 30, 30,
+            "Papiro com hieroglifos",
+            "Os egipcios desenvolveram um sistema de escrita chamado hieroglifos. Eles utilizavam desenhos e simbolos para representar palavras, sons e ideias. Escreviam em paredes, monumentos e folhas feitas de papiro."
+        },
+        {
+            1150, 320, 30, 30,
+            "Vaso canopico",
+            "Os antigos egipcios acreditavam na vida apos a morte e praticavam a mumificacao. Durante esse processo, determinados orgaos eram retirados e guardados em recipientes especiais chamados vasos canopicos."
+        },
+        {
+            1600, 395, 30, 30,
+            "Miniatura de um shaduf",
+            "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf, um dispositivo que ajudava a elevar agua do rio ou de canais para irrigar as plantacoes."
+        }
     };
+
+    bool objetosEncontrados[3] = { false, false, false };
+
+    int objetoAtual = -1;
 
     bool mostrarInformacao = false;
     bool pertoDoObjeto = false;
+
+    // PERGUNTAS DO CHEFE FINAL
+    char perguntas[4][200] = {
+        "Qual era o nome do sistema de escrita egipcio?",
+        "Para que serviam os vasos canopicos?",
+        "Por que o rio Nilo era importante?",
+        "Qual era a funcao do shaduf?"
+    };
+
+    // ALTERNATIVAS DAS PERGUNTAS
+    char alternativas[4][3][120] = {
+        {
+            "Alfabeto romano",
+            "Hieroglifos",
+            "Escrita medieval"
+        },
+        {
+            "Guardar alimentos",
+            "Armazenar agua",
+            "Guardar orgaos retirados na mumificacao"
+        },
+        {
+            "Deixar o solo fertil para a agricultura",
+            "Construir apenas barcos",
+            "Impedir o crescimento das plantacoes"
+        },
+        {
+            "Escrever simbolos religiosos",
+            "Elevar agua para irrigar as plantacoes",
+            "Construir piramides"
+        }
+    };
+
+    // INDICE DA ALTERNATIVA CORRETA
+    int respostasCorretas[4] = { 1, 2, 0, 1 };
+
+    int perguntaAtual = 0;
+
 
     // CAMERA E CENARIO
     float cameraX = 0;
@@ -150,6 +206,11 @@ int main()
         invulneravel = false; tempoInvulneravel = 0; \
         personagemVisivel = true; derrota = false; estaNoChao = false; \
         mostrarInformacao = false; pertoDoObjeto = false; \
+        objetosEncontrados[0] = false; \
+        objetosEncontrados[1] = false; \
+        objetosEncontrados[2] = false; \
+        objetoAtual = -1; \
+        perguntaAtual = 0; \
     } while (0)
 
     while (jogoEmExecucao) {
@@ -177,12 +238,57 @@ int main()
                 if (evento.keyboard.keycode == ALLEGRO_KEY_E) {
                     if (mostrarInformacao) {
                         mostrarInformacao = false;
+
+                        // Marca o objeto como encontrado
+                        if (objetoAtual != -1) {
+                            objetosEncontrados[objetoAtual] = true;
+                        }
+
+                        objetoAtual = -1;
                     }
                     else if (pertoDoObjeto) {
                         mostrarInformacao = true;
                     }
                 }
             }
+
+            else if (estado == QUESTIONARIO) {
+
+                int alternativaEscolhida = -1;
+
+                if (evento.keyboard.keycode == ALLEGRO_KEY_1)
+                    alternativaEscolhida = 0;
+
+                else if (evento.keyboard.keycode == ALLEGRO_KEY_2)
+                    alternativaEscolhida = 1;
+
+                else if (evento.keyboard.keycode == ALLEGRO_KEY_3)
+                    alternativaEscolhida = 2;
+
+                if (alternativaEscolhida != -1) {
+
+                    // RESPOSTA CORRETA
+                    if (alternativaEscolhida == respostasCorretas[perguntaAtual]) {
+
+                        perguntaAtual++;
+
+                        // ACERTOU AS QUATRO PERGUNTAS
+                        if (perguntaAtual >= 4) {
+                            estado = VITORIA;
+                        }
+                    }
+
+                    // RESPOSTA ERRADA
+                    else {
+                        vidas--;
+
+                        if (vidas <= 0) {
+                            estado = DERROTA;
+                        }
+                    }
+                }
+            }
+
             else if (estado == PAUSA &&
                 evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                 estado = GAMEPLAY;
@@ -226,6 +332,9 @@ int main()
                 else if (clicou_botao(mx, my, botaoX, 390, botaoLargura, botaoAltura))
                     estado = MENU;
             }
+            
+
+
             else if (estado == DERROTA || estado == VITORIA) {
                 if (clicou_botao(mx, my, botaoX, 350, botaoLargura, botaoAltura)) {
                     REINICIAR_PARTIDA();
@@ -266,12 +375,23 @@ int main()
                     al_key_down(&teclado, ALLEGRO_KEY_RIGHT))
                     posicaoX += velocidadeHorizontal;
 
-                // VERIFICAÇÃO SE O PERSONAGEM ESTÁ PERTO PARA INTERAGIR COM O OBJETO
-                pertoDoObjeto =
-                    posicaoX + larguraPersonagem >= objetoTeste.x - 40 &&
-                    posicaoX <= objetoTeste.x + objetoTeste.largura + 40 &&
-                    posicaoY + alturaPersonagem >= objetoTeste.y - 30 &&
-                    posicaoY <= objetoTeste.y + objetoTeste.altura + 30;
+                // VERIFICA PROXIMIDADE DOS OBJETOS HISTORICOS
+                pertoDoObjeto = false;
+                objetoAtual = -1;
+
+                for (int i = 0; i < 3; i++) {
+
+                    if (!objetosEncontrados[i] &&
+                        posicaoX + larguraPersonagem >= objetosHistoricos[i].x - 40 &&
+                        posicaoX <= objetosHistoricos[i].x + objetosHistoricos[i].largura + 40 &&
+                        posicaoY + alturaPersonagem >= objetosHistoricos[i].y - 30 &&
+                        posicaoY <= objetosHistoricos[i].y + objetosHistoricos[i].altura + 30) {
+
+                        pertoDoObjeto = true;
+                        objetoAtual = i;
+                        break;
+                    }
+                }
 
                 // GRAVIDADE E MOVIMENTO VERTICAL
                 float posicaoYAnterior = posicaoY;
@@ -339,10 +459,19 @@ int main()
                     cameraFoco = larguraCenario - 1280;
                 cameraX += (cameraFoco - cameraX) * 0.1;
 
-                // Condicao provisoria de vitoria: chegar ao final do cenario.
-                // Substituir pela coleta do fragmento quando ela for implementada.
-                if (posicaoX >= larguraCenario - larguraPersonagem)
-                    estado = VITORIA;
+                // VERIFICA SE OS TRES OBJETOS FORAM ENCONTRADOS
+                bool todosObjetosEncontrados =
+                    objetosEncontrados[0] &&
+                    objetosEncontrados[1] &&
+                    objetosEncontrados[2];
+
+                // AO CHEGAR AO FINAL, INICIA O QUESTIONARIO
+                if (posicaoX >= larguraCenario - larguraPersonagem &&
+                    todosObjetosEncontrados) {
+
+                    perguntaAtual = 0;
+                    estado = QUESTIONARIO;
+                }
                 }
             }
         }
@@ -379,12 +508,117 @@ int main()
                         "VOLTAR", fonte, al_map_rgb(0, 0, 255));
                 }
             }
+            else if (estado == QUESTIONARIO) {
+
+                // FUNDO ESCURO DA BATALHA
+                al_clear_to_color(al_map_rgb(20, 15, 30));
+
+                al_draw_text(
+                    titulo,
+                    al_map_rgb(255, 200, 0),
+                    640, 100,
+                    ALLEGRO_ALIGN_CENTER,
+                    "GUARDIAO DO CONHECIMENTO"
+                );
+                // EXIBE AS VIDAS DO JOGADOR
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    100, 170,
+                    0,
+                    "VIDAS:"
+                );
+
+                for (int i = 0; i < 5; i++) {
+
+                    ALLEGRO_COLOR corVida;
+
+                    if (i < vidas) {
+                        // VIDA DISPONIVEL
+                        corVida = al_map_rgb(230, 40, 60);
+                    }
+                    else {
+                        // VIDA PERDIDA
+                        corVida = al_map_rgb(90, 90, 90);
+                    }
+
+                    al_draw_filled_circle(
+                        180 + (i * 35), 180,
+                        12,
+                        corVida
+                    );
+                }
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    640, 170,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Energia do chefe: %d/4",
+                    4 - perguntaAtual
+                );
+
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 220, 0),
+                    640, 250,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pergunta %d de 4",
+                    perguntaAtual + 1
+                );
+
+                al_draw_multiline_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    340, 300,
+                    600, 30,
+                    ALLEGRO_ALIGN_CENTER,
+                    perguntas[perguntaAtual]
+                );
+
+                // ALTERNATIVAS
+                for (int i = 0; i < 3; i++) {
+
+                    al_draw_textf(
+                        fonte,
+                        al_map_rgb(255, 255, 255),
+                        350, 390 + (i * 45),
+                        0,
+                        "%d) %s",
+                        i + 1,
+                        alternativas[perguntaAtual][i]
+                    );
+                }
+
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 220, 0),
+                    640, 570,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pressione 1, 2 ou 3 para responder"
+                );
+            }
+
             else {
-                // CENARIO E PERSONAGEM: desenho original da equipe
+            // LIMPA A TELA E DEFINE A COR DO FUNDO DA GAMEPLAY
                 al_clear_to_color(al_map_rgb(5, 207, 250));
 
-                al_draw_textf(fonte, al_map_rgb(255, 255, 255),
-                    20, 20, 0, "Vidas: %d", vidas);
+            // CONTA QUANTOS OBJETOS FORAM ENCONTRADOS
+            int quantidadeEncontrada = 0;
+
+            for (int i = 0; i < 3; i++) {
+                if (objetosEncontrados[i]) {
+                    quantidadeEncontrada++;
+                }
+            }
+
+            al_draw_textf(
+                fonte,
+                al_map_rgb(255, 255, 255),
+                20, 50,
+                0,
+                "Objetos: %d/3",
+                quantidadeEncontrada
+            );
 
                 for (int i = 0; i < qtdPlataformas; i++) {
                     al_draw_filled_rectangle(
@@ -410,29 +644,41 @@ int main()
                         al_map_rgb(237, 61, 17));
                 }
 
-                // DESENHA O OBJETO INTERATIVO
-                al_draw_filled_rectangle(
-                    objetoTeste.x - cameraX,
-                    objetoTeste.y,
-                    objetoTeste.x + objetoTeste.largura - cameraX,
-                    objetoTeste.y + objetoTeste.altura,
-                    al_map_rgb(255, 200, 0)
-                );
+                // DESENHA OS OBJETOS HISTORICOS
+                for (int i = 0; i < 3; i++) {
 
-                // MOSTRA INSTRUÇÃO PARA INTERAGIR
+                    ALLEGRO_COLOR corObjeto;
+
+                    if (objetosEncontrados[i]) {
+                        corObjeto = al_map_rgb(120, 120, 120);
+                    }
+                    else {
+                        corObjeto = al_map_rgb(255, 200, 0);
+                    }
+
+                    al_draw_filled_rectangle(
+                        objetosHistoricos[i].x - cameraX,
+                        objetosHistoricos[i].y,
+                        objetosHistoricos[i].x + objetosHistoricos[i].largura - cameraX,
+                        objetosHistoricos[i].y + objetosHistoricos[i].altura,
+                        corObjeto
+                    );
+                }
+
+                // INSTRUCAO PARA INTERAGIR
                 if (pertoDoObjeto && !mostrarInformacao) {
                     al_draw_text(
                         fonte,
                         al_map_rgb(255, 255, 255),
-                        objetoTeste.x - cameraX,
-                        objetoTeste.y - 25,
+                        objetosHistoricos[objetoAtual].x - cameraX,
+                        objetosHistoricos[objetoAtual].y - 25,
                         0,
                         "E - Interagir"
                     );
                 }
 
-                // CAIXA DE INFORMAÇÃO HISTÓRICA
-                if (mostrarInformacao) {
+                // CAIXA DE INFORMACAO HISTORICA
+                if (mostrarInformacao && objetoAtual != -1) {
 
                     al_draw_filled_rounded_rectangle(
                         340, 200, 940, 520,
@@ -452,7 +698,7 @@ int main()
                         al_map_rgb(255, 220, 0),
                         640, 240,
                         ALLEGRO_ALIGN_CENTER,
-                        objetoTeste.titulo
+                        objetosHistoricos[objetoAtual].titulo
                     );
 
                     al_draw_multiline_text(
@@ -461,7 +707,7 @@ int main()
                         390, 300,
                         500, 30,
                         0,
-                        objetoTeste.descricao
+                        objetosHistoricos[objetoAtual].descricao
                     );
 
                     al_draw_text(
