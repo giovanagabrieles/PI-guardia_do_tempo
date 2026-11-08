@@ -620,6 +620,33 @@ int main()
                 quantidadeEncontrada
             );
 
+            // EXIBE AS VIDAS DO JOGADOR NA GAMEPLAY
+            al_draw_text(
+                fonte,
+                al_map_rgb(255, 255, 255),
+                20, 85,
+                0,
+                "Vidas:"
+            );
+
+            for (int i = 0; i < 5; i++) {
+
+                ALLEGRO_COLOR corVida;
+
+                if (i < vidas) {
+                    corVida = al_map_rgb(230, 40, 60);
+                }
+                else {
+                    corVida = al_map_rgb(90, 90, 90);
+                }
+
+                al_draw_filled_circle(
+                    100 + (i * 30), 96,
+                    10,
+                    corVida
+                );
+            }
+
                 for (int i = 0; i < qtdPlataformas; i++) {
                     al_draw_filled_rectangle(
                         plataformas[i].x - cameraX, plataformas[i].y,
