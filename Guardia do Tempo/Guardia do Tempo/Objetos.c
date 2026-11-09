@@ -3,15 +3,26 @@
 
 // Desenha o objeto interativo no cenario
 void desenhar_objeto_interativo(objetoInterativo objeto,
-    float cameraX, bool pertoDoObjeto, ALLEGRO_FONT* fonte)
+    float cameraX, bool pertoDoObjeto, bool objetoEncontrado,
+    ALLEGRO_FONT* fonte)
 {
+    ALLEGRO_COLOR corObjeto;
+
+    // Define a cor conforme o estado do objeto
+    if (objetoEncontrado) {
+        corObjeto = al_map_rgb(120, 120, 120); // Cinza
+    }
+    else {
+        corObjeto = al_map_rgb(255, 215, 0); // Amarelo
+    }
+
     al_draw_filled_rectangle(
         objeto.x - cameraX, objeto.y,
         objeto.x + objeto.largura - cameraX,
         objeto.y + objeto.altura,
-        al_map_rgb(255, 215, 0));
+        corObjeto);
 
-    if (pertoDoObjeto) {
+    if (pertoDoObjeto && !objetoEncontrado) {
         al_draw_text(
             fonte,
             al_map_rgb(255, 255, 255),
