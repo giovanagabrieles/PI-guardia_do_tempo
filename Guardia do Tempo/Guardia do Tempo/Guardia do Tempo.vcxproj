@@ -156,6 +156,7 @@
     <ClCompile Include="Cenario.c" />
     <ClCompile Include="Interface.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="Personagem.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -163,6 +164,7 @@
   <ItemGroup>
     <ClInclude Include="Cenario.h" />
     <ClInclude Include="Interface.h" />
+    <ClInclude Include="Personagem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
