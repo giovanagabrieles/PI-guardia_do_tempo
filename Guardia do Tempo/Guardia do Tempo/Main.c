@@ -488,6 +488,15 @@ int main()
                     perguntaAtual + 1
                 );
 
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 100, 100),
+                    640, 195,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Energia do chefe: %d/4",
+                    4 - perguntaAtual
+                );
+
                 if (perguntaAtual < 4) {
                     al_draw_multiline_text(
                         fonte,
@@ -555,6 +564,26 @@ int main()
                     "Objetos: %d/3",
                     quantidadeEncontrada
                 );
+
+                // INDICADOR DE VIDAS
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    1120, 30,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Vidas:"
+                );
+
+                for (int i = 0; i < 5; i++) {
+                    ALLEGRO_COLOR corVida = (i < vidas)
+                        ? al_map_rgb(220, 40, 40)
+                        : al_map_rgb(120, 120, 120);
+
+                    al_draw_filled_circle(
+                        1070 + i * 25, 65, 8,
+                        corVida
+                    );
+                }
 
                 desenhar_plataformas(plataformas, qtdPlataformas, cameraX);
                 desenhar_obstaculos(obstaculos, qtdObstaculos, cameraX);
