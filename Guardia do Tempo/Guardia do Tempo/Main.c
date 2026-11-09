@@ -94,19 +94,22 @@ int main()
     bool estaNoChao = false;
 
     // PLATAFORMAS (originais)
-    plataforma plataformas[6] = {
-        { 0, 500, 150, 15 },
-        { 200, 425, 350, 15 },
-        { 500, 500, 300, 15 },
-        { 800, 425, 250, 15 },
-        { 1100, 350, 300, 15 },
-        { 1450, 425, 350, 15 }
+    plataforma plataformas[9] = {
+    { 0, 500, 150, 15 },
+    { 200, 425, 350, 15 },
+    { 500, 500, 300, 15 },
+    { 800, 425, 250, 15 },
+    { 1100, 350, 300, 15 },
+    { 1450, 425, 350, 15 },
+    { 1800, 500, 250, 15 },
+    { 2050, 425, 250, 15 },
+    { 2300, 500, 100, 15 }
     };
     int qtdPlataformas = sizeof(plataformas) / sizeof(plataformas[0]);
 
     // OBSTACULOS (originais)
     obstaculo obstaculos[1] = {
-        { 650, 650, 40, 30 }
+    { 650, 470, 40, 30 }
     };
     int qtdObstaculos = sizeof(obstaculos) / sizeof(obstaculos[0]);
 
@@ -259,12 +262,18 @@ int main()
                         estaNoChao = true;
                     }
                 }
+                // PERDE VIDA AO CAIR DA TELA
+                if (posicaoY > 720) {
+                    if (!invulneravel) {
+                        vidas--;
+                        invulneravel = true;
+                        tempoInvulneravel = 0;
+                    }
 
-                // COLISAO COM CHAO
-                if (posicaoY + alturaPersonagem >= 680) {
-                    posicaoY = 680 - alturaPersonagem;
+                    posicaoX = 50;
+                    posicaoY = 300;
                     velocidadeVertical = 0;
-                    estaNoChao = true;
+                    cameraX = 0;
                 }
 
                 // COLISAO COM OBSTACULO
@@ -332,8 +341,6 @@ int main()
             else {
                 // CENARIO E PERSONAGEM: desenho original da equipe
                 al_clear_to_color(al_map_rgb(5, 207, 250));
-                al_draw_line(-cameraX, 680, larguraCenario - cameraX, 680,
-                    al_map_rgb(255, 255, 255), 2.0);
 
                 al_draw_textf(fonte, al_map_rgb(255, 255, 255),
                     20, 20, 0, "Vidas: %d", vidas);
