@@ -54,6 +54,174 @@ bool clicou_botao(int mx, int my, float x, float y,
         my >= y && my <= y + altura;
 }
 
+// Desenha todas as plataformas do cenario
+void desenhar_plataformas(plataforma plataformas[],
+    int qtdPlataformas, float cameraX)
+{
+    for (int i = 0; i < qtdPlataformas; i++) {
+        al_draw_filled_rectangle(
+            plataformas[i].x - cameraX, plataformas[i].y,
+            plataformas[i].x + plataformas[i].largura - cameraX,
+            plataformas[i].y + plataformas[i].altura,
+            al_map_rgb(31, 150, 12));
+    }
+}
+
+// Desenha todos os obstaculos do cenario
+void desenhar_obstaculos(obstaculo obstaculos[],
+    int qtdObstaculos, float cameraX)
+{
+    for (int i = 0; i < qtdObstaculos; i++) {
+        al_draw_filled_rectangle(
+            obstaculos[i].x - cameraX, obstaculos[i].y,
+            obstaculos[i].x + obstaculos[i].largura - cameraX,
+            obstaculos[i].y + obstaculos[i].altura,
+            al_map_rgb(200, 0, 0));
+    }
+}
+
+// Desenha o personagem na tela
+void desenhar_personagem(float posicaoX, float posicaoY,
+    float larguraPersonagem, float alturaPersonagem,
+    float cameraX, bool personagemVisivel)
+{
+    if (personagemVisivel) {
+        al_draw_filled_rectangle(
+            posicaoX - cameraX, posicaoY,
+            posicaoX + larguraPersonagem - cameraX,
+            posicaoY + alturaPersonagem,
+            al_map_rgb(237, 61, 17));
+    }
+}
+
+// Desenha o objeto interativo no cenario
+void desenhar_objeto_interativo(objetoInterativo objeto,
+    float cameraX, bool pertoDoObjeto, ALLEGRO_FONT* fonte)
+{
+    al_draw_filled_rectangle(
+        objeto.x - cameraX, objeto.y,
+        objeto.x + objeto.largura - cameraX,
+        objeto.y + objeto.altura,
+        al_map_rgb(255, 215, 0));
+
+    if (pertoDoObjeto) {
+        al_draw_text(
+            fonte,
+            al_map_rgb(255, 255, 255),
+            objeto.x - cameraX,
+            objeto.y - 25, 0,
+            "Pressione E para interagir");
+    }
+}
+
+// Desenha a caixa de informacao historica
+void desenhar_caixa_informacao(objetoInterativo objeto,
+    ALLEGRO_FONT* fonte, bool mostrarInformacao)
+{
+    if (mostrarInformacao) {
+
+        al_draw_filled_rounded_rectangle(340, 200, 940, 520, 20, 20,
+            al_map_rgba(0, 0, 0, 230));
+
+        al_draw_rounded_rectangle(340, 200, 940, 520, 20, 20,
+            al_map_rgb(255, 200, 0), 3);
+
+        al_draw_text(fonte, al_map_rgb(255, 220, 0), 640, 240, ALLEGRO_ALIGN_CENTER,objeto.titulo);
+
+        al_draw_multiline_text(fonte, al_map_rgb(255, 255, 255), 390, 300, 500, 30, 0, objeto.descricao);
+
+        al_draw_text(fonte, al_map_rgb(200, 200, 200), 640, 470, ALLEGRO_ALIGN_CENTER, "Aperte E para fechar");
+    }
+}
+
+// Desenha a tela do menu principal
+void desenhar_tela_menu(ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte, float botaoX,
+    float botaoLargura, float botaoAltura)
+{
+    al_draw_text(titulo, al_map_rgb(0, 0, 255),
+        640, 120, ALLEGRO_ALIGN_CENTER, "GUARDIA DO TEMPO");
+
+    desenhar_botao(botaoX, 250, botaoLargura, botaoAltura,
+        "NOVO JOGO", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 340, botaoLargura, botaoAltura,
+        "CARREGAR JOGO", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 430, botaoLargura, botaoAltura,
+        "SAIR", fonte, al_map_rgb(0, 0, 255));
+}
+
+// Desenha a tela de carregar jogo
+void desenhar_tela_carregar_jogo(ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte, float botaoX,
+    float botaoLargura, float botaoAltura)
+{
+    al_draw_text(titulo, al_map_rgb(0, 0, 255),
+        640, 150, ALLEGRO_ALIGN_CENTER, "CARREGAR JOGO");
+
+    desenhar_botao(botaoX, 250, botaoLargura, botaoAltura,
+        "JOGO 01", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 340, botaoLargura, botaoAltura,
+        "JOGO 02", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 430, botaoLargura, botaoAltura,
+        "VOLTAR", fonte, al_map_rgb(0, 0, 255));
+}
+
+// Desenha a tela de pausa
+void desenhar_tela_pausa(ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte, float botaoX,
+    float botaoLargura, float botaoAltura)
+{
+    al_draw_filled_rectangle(0, 0, 1280, 720,
+        al_map_rgba(0, 0, 0, 160));
+
+    al_draw_text(titulo, al_map_rgb(255, 255, 255),
+        640, 190, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+
+    desenhar_botao(botaoX, 300, botaoLargura, botaoAltura,
+        "CONTINUAR", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 390, botaoLargura, botaoAltura,
+        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+}
+
+// Desenha a tela de derrota
+void desenhar_tela_derrota(ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte, float botaoX,
+    float botaoLargura, float botaoAltura)
+{
+    al_clear_to_color(al_map_rgb(82, 7, 7));
+
+    al_draw_text(titulo, al_map_rgb(250, 250, 250),
+        640, 240, ALLEGRO_ALIGN_CENTER, "FIM DE JOGO!");
+
+    desenhar_botao(botaoX, 350, botaoLargura, botaoAltura,
+        "TENTAR NOVAMENTE", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 440, botaoLargura, botaoAltura,
+        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+}
+
+// Desenha a tela de vitoria
+void desenhar_tela_vitoria(ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte, float botaoX,
+    float botaoLargura, float botaoAltura)
+{
+    al_clear_to_color(al_map_rgb(5, 100, 60));
+
+    al_draw_text(titulo, al_map_rgb(255, 255, 255),
+        640, 240, ALLEGRO_ALIGN_CENTER, "FASE CONCLUIDA!");
+
+    desenhar_botao(botaoX, 350, botaoLargura, botaoAltura,
+        "JOGAR NOVAMENTE", fonte, al_map_rgb(0, 0, 255));
+
+    desenhar_botao(botaoX, 440, botaoLargura, botaoAltura,
+        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+}
+
 int main()
 {
     // INICIALIZACAO DO ALLEGRO
@@ -348,27 +516,15 @@ int main()
             if (estado == MENU || estado == CARREGAR_JOGO) {
                 al_clear_to_color(al_map_rgb(190, 150, 210));
 
-                if (estado == MENU) {
-                    al_draw_text(titulo, al_map_rgb(0, 0, 255),
-                        640, 120, ALLEGRO_ALIGN_CENTER, "GUARDIA DO TEMPO");
 
-                    desenhar_botao(botaoX, 250, botaoLargura, botaoAltura,
-                        "NOVO JOGO", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 340, botaoLargura, botaoAltura,
-                        "CARREGAR JOGO", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 430, botaoLargura, botaoAltura,
-                        "SAIR", fonte, al_map_rgb(0, 0, 255));
+                if (estado == MENU) {
+                   desenhar_tela_menu(titulo, fonte, botaoX,botaoLargura, botaoAltura);
+
                 }
                 else {
-                    al_draw_text(titulo, al_map_rgb(0, 0, 255),
-                        640, 150, ALLEGRO_ALIGN_CENTER, "CARREGAR JOGO");
-                    desenhar_botao(botaoX, 250, botaoLargura, botaoAltura,
-                        "JOGO 01", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 340, botaoLargura, botaoAltura,
-                        "JOGO 02", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 430, botaoLargura, botaoAltura,
-                        "VOLTAR", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_carregar_jogo(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
+
             }
             else {
                 // CENARIO E PERSONAGEM: desenho original da equipe
@@ -379,120 +535,28 @@ int main()
                 al_draw_textf(fonte, al_map_rgb(255, 255, 255),
                     20, 20, 0, "Vidas: %d", vidas);
 
-                for (int i = 0; i < qtdPlataformas; i++) {
-                    al_draw_filled_rectangle(
-                        plataformas[i].x - cameraX, plataformas[i].y,
-                        plataformas[i].x + plataformas[i].largura - cameraX,
-                        plataformas[i].y + plataformas[i].altura,
-                        al_map_rgb(31, 150, 12));
-                }
+                desenhar_plataformas(plataformas, qtdPlataformas, cameraX);
 
-                for (int i = 0; i < qtdObstaculos; i++) {
-                    al_draw_filled_rectangle(
-                        obstaculos[i].x - cameraX, obstaculos[i].y,
-                        obstaculos[i].x + obstaculos[i].largura - cameraX,
-                        obstaculos[i].y + obstaculos[i].altura,
-                        al_map_rgb(200, 0, 0));
-                }
+                desenhar_obstaculos(obstaculos, qtdObstaculos, cameraX);
 
-                if (personagemVisivel) {
-                    al_draw_filled_rectangle(
-                        posicaoX - cameraX, posicaoY,
-                        posicaoX + larguraPersonagem - cameraX,
-                        posicaoY + alturaPersonagem,
-                        al_map_rgb(237, 61, 17));
-                }
+                desenhar_personagem(posicaoX, posicaoY, larguraPersonagem, alturaPersonagem, cameraX, personagemVisivel);
 
-                // DESENHA O OBJETO INTERATIVO
-                al_draw_filled_rectangle(
-                    objetoTeste.x - cameraX,
-                    objetoTeste.y,
-                    objetoTeste.x + objetoTeste.largura - cameraX,
-                    objetoTeste.y + objetoTeste.altura,
-                    al_map_rgb(255, 200, 0)
-                );
-
-                // MOSTRA INSTRUÇÃO PARA INTERAGIR
-                if (pertoDoObjeto && !mostrarInformacao) {
-                    al_draw_text(
-                        fonte,
-                        al_map_rgb(255, 255, 255),
-                        objetoTeste.x - cameraX,
-                        objetoTeste.y - 25,
-                        0,
-                        "E - Interagir"
-                    );
-                }
+                desenhar_objeto_interativo(objetoTeste, cameraX,
+                    pertoDoObjeto, fonte);
 
                 // CAIXA DE INFORMAÇÃO HISTÓRICA
-                if (mostrarInformacao) {
+                desenhar_caixa_informacao(objetoTeste, fonte, mostrarInformacao);
 
-                    al_draw_filled_rounded_rectangle(
-                        340, 200, 940, 520,
-                        20, 20,
-                        al_map_rgba(0, 0, 0, 230)
-                    );
-
-                    al_draw_rounded_rectangle(
-                        340, 200, 940, 520,
-                        20, 20,
-                        al_map_rgb(255, 200, 0),
-                        3
-                    );
-
-                    al_draw_text(
-                        fonte,
-                        al_map_rgb(255, 220, 0),
-                        640, 240,
-                        ALLEGRO_ALIGN_CENTER,
-                        objetoTeste.titulo
-                    );
-
-                    al_draw_multiline_text(
-                        fonte,
-                        al_map_rgb(255, 255, 255),
-                        390, 300,
-                        500, 30,
-                        0,
-                        objetoTeste.descricao
-                    );
-
-                    al_draw_text(
-                        fonte,
-                        al_map_rgb(200, 200, 200),
-                        640, 470,
-                        ALLEGRO_ALIGN_CENTER,
-                        "Aperte E para fechar"
-                    );
-                }
-
+                //ESTADO DO JOGO: PAUSA, DERROTA E VITORIA
                 if (estado == PAUSA) {
-                    al_draw_filled_rectangle(0, 0, 1280, 720,
-                        al_map_rgba(0, 0, 0, 160));
-                    al_draw_text(titulo, al_map_rgb(255, 255, 255),
-                        640, 190, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
-                    desenhar_botao(botaoX, 300, botaoLargura, botaoAltura,
-                        "CONTINUAR", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 390, botaoLargura, botaoAltura,
-                        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_pausa(titulo, fonte, botaoX, botaoLargura, botaoAltura);
+
                 }
                 else if (estado == DERROTA) {
-                    al_clear_to_color(al_map_rgb(82, 7, 7));
-                    al_draw_text(titulo, al_map_rgb(250, 250, 250),
-                        640, 240, ALLEGRO_ALIGN_CENTER, "FIM DE JOGO!");
-                    desenhar_botao(botaoX, 350, botaoLargura, botaoAltura,
-                        "TENTAR NOVAMENTE", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 440, botaoLargura, botaoAltura,
-                        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_derrota(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
                 else if (estado == VITORIA) {
-                    al_clear_to_color(al_map_rgb(5, 100, 60));
-                    al_draw_text(titulo, al_map_rgb(255, 255, 255),
-                        640, 240, ALLEGRO_ALIGN_CENTER, "FASE CONCLUIDA!");
-                    desenhar_botao(botaoX, 350, botaoLargura, botaoAltura,
-                        "JOGAR NOVAMENTE", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 440, botaoLargura, botaoAltura,
-                        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_vitoria(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
             }
 
