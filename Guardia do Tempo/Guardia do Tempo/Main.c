@@ -153,6 +153,7 @@ int main()
     float cameraX = 0;
     float larguraCenario = 2400;
 
+    int pontuacao = 0;
     int vidas = 5;
     bool invulneravel = false;
     float tempoInvulneravel = 0;
@@ -179,12 +180,15 @@ int main()
     { 650, 470, 40, 30 }
     };
     int qtdObstaculos = sizeof(obstaculos) / sizeof(obstaculos[0]);
+    bool obstaculoSuperado = false;
 
     // Reinicia apenas os dados da partida
     // (mantem plataformas, obstaculos e configuracoes originais)
 #define REINICIAR_PARTIDA() do { \
         posicaoX = 50; posicaoY = 300; \
         velocidadeVertical = 0; cameraX = 0; vidas = 5; \
+        pontuacao = 0; \
+        obstaculoSuperado = false; \
         invulneravel = false; tempoInvulneravel = 0; \
         personagemVisivel = true; derrota = false; estaNoChao = false; \
         mostrarInformacao = false; pertoDoObjeto = false; \
@@ -227,6 +231,7 @@ int main()
                         // Marca o objeto como encontrado
                         if (objetoAtual != -1) {
                             objetosEncontrados[objetoAtual] = true;
+                            pontuacao += 100;
                         }
 
                         objetoAtual = -1;
@@ -268,6 +273,7 @@ int main()
 
                         // ACERTOU AS QUATRO PERGUNTAS
                         if (perguntaAtual >= 4) {
+                            pontuacao += 200; // BONUS POR FINALIZAR O QUESTIONARIO
                             estado = VITORIA;
                         }
                     }
@@ -427,6 +433,12 @@ int main()
                 if (posicaoY > 720) {
                     if (!invulneravel) {
                         vidas--;
+                        pontuacao -= 100;
+
+                        if (pontuacao < 0) {
+                            pontuacao = 0;
+                        }
+
                         invulneravel = true;
                         tempoInvulneravel = 0;
                     }
@@ -445,12 +457,25 @@ int main()
                         posicaoY + alturaPersonagem > obstaculos[i].y &&
                         posicaoY < obstaculos[i].y + obstaculos[i].altura) {
                         vidas--;
+                        pontuacao -= 100;
+
+                        if (pontuacao < 0) {
+                            pontuacao = 0;
+                        }
+
                         invulneravel = true;
                         posicaoX = 50;
                         posicaoY = 300;
                         velocidadeVertical = 0;
                         cameraX = 0;
                     }
+                }
+                // GANHA PONTOS AO SUPERAR O OBSTACULO
+                if (!obstaculoSuperado &&
+                    posicaoX > obstaculos[0].x + obstaculos[0].largura) {
+
+                    pontuacao += 50;
+                    obstaculoSuperado = true;
                 }
 
                 // PERDA DE VIDAS
@@ -591,6 +616,15 @@ int main()
                     0,
                     "Objetos: %d/3",
                     quantidadeEncontrada
+                );
+
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 220, 0),
+                    20, 80,
+                    0,
+                    "Pontuacao: %d",
+                    pontuacao
                 );
 
                 // INDICADOR DE VIDAS
