@@ -19,6 +19,7 @@ typedef enum {
     GAMEPLAY,
     PAUSA,
     QUESTIONARIO,
+    TRANSICAO_FASE,
     DERROTA,
     VITORIA
 } EstadoJogo;
@@ -57,8 +58,90 @@ void atualizar_recorde(int pontuacao, int* recorde) {
     }
 }
 
+void carregar_fase(
+    int faseAtual,
+    objetoInterativo objetosHistoricos[],
+    plataforma plataformas[],
+    obstaculo obstaculos[],
+    float* chefeX,
+    float* chefeY,
+    float* larguraCenario
+) {
+    if (faseAtual == 1) {
 
+        // FASE 1 - EGITO ANTIGO
+        objetosHistoricos[0] = (objetoInterativo){
+            350, 395, 30, 30,
+            "Papiro com hieroglifos",
+            "Os egipcios desenvolveram um sistema de escrita chamado hieroglifos. Eles utilizavam desenhos e simbolos para representar palavras, sons e ideias. Escreviam em paredes, monumentos e folhas feitas de papiro."
+        };
 
+        objetosHistoricos[1] = (objetoInterativo){
+            1150, 320, 30, 30,
+            "Vaso canopico",
+            "Os antigos egipcios acreditavam na vida apos a morte e praticavam a mumificacao. Durante esse processo, determinados orgaos eram retirados e guardados em recipientes especiais chamados vasos canopicos."
+        };
+
+        objetosHistoricos[2] = (objetoInterativo){
+            1600, 395, 30, 30,
+            "Miniatura de um shaduf",
+            "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf para elevar agua e irrigar as plantacoes."
+        };
+
+        plataformas[0] = (plataforma){ 0, 500, 150, 15 };
+        plataformas[1] = (plataforma){ 200, 425, 350, 15 };
+        plataformas[2] = (plataforma){ 500, 500, 300, 15 };
+        plataformas[3] = (plataforma){ 800, 425, 250, 15 };
+        plataformas[4] = (plataforma){ 1100, 350, 300, 15 };
+        plataformas[5] = (plataforma){ 1450, 425, 350, 15 };
+        plataformas[6] = (plataforma){ 1800, 500, 250, 15 };
+        plataformas[7] = (plataforma){ 2050, 425, 250, 15 };
+        plataformas[8] = (plataforma){ 2300, 500, 100, 15 };
+
+        obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
+
+        *chefeX = 2335;
+        *chefeY = 460;
+        *larguraCenario = 2400;
+    }
+    else if (faseAtual == 2) {
+
+        // FASE 2 - GRECIA ANTIGA
+        objetosHistoricos[0] = (objetoInterativo){
+            350, 395, 30, 30,
+            "Amfora grega",
+            "As amforas eram recipientes utilizados pelos gregos antigos para armazenar e transportar produtos como vinho, azeite e alimentos."
+        };
+
+        objetosHistoricos[1] = (objetoInterativo){
+            1150, 320, 30, 30,
+            "Escudo hoplita",
+            "Os hoplitas eram soldados da Grecia Antiga. Eles utilizavam escudos grandes e arredondados para se proteger durante as batalhas."
+        };
+
+        objetosHistoricos[2] = (objetoInterativo){
+            1600, 395, 30, 30,
+            "Pergaminho filosofico",
+            "A Grecia Antiga foi um importante centro de desenvolvimento da filosofia. Pensadores como Socrates, Platao e Aristoteles refletiram sobre conhecimento, politica e etica."
+        };
+
+        plataformas[0] = (plataforma){ 0, 500, 150, 15 };
+        plataformas[1] = (plataforma){ 200, 425, 350, 15 };
+        plataformas[2] = (plataforma){ 500, 500, 300, 15 };
+        plataformas[3] = (plataforma){ 800, 425, 250, 15 };
+        plataformas[4] = (plataforma){ 1100, 350, 300, 15 };
+        plataformas[5] = (plataforma){ 1450, 425, 350, 15 };
+        plataformas[6] = (plataforma){ 1800, 500, 250, 15 };
+        plataformas[7] = (plataforma){ 2050, 425, 250, 15 };
+        plataformas[8] = (plataforma){ 2300, 500, 100, 15 };
+
+        obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
+
+        *chefeX = 2335;
+        *chefeY = 460;
+        *larguraCenario = 2400;
+    }
+}
 
 int main()
 {
@@ -109,7 +192,7 @@ int main()
 
 
    // OBJETOS HISTORICOS DO EGITO ANTIGO
-    objetoInterativo objetosHistoricos[3] = {
+    objetoInterativo objetosEgito[3] = {
         {
             350, 395, 30, 30,
             "Papiro com hieroglifos",
@@ -127,6 +210,25 @@ int main()
         }
     };
 
+    // OBJETOS HISTORICOS DA GRECIA ANTIGA
+    objetoInterativo objetosGrecia[3] = {
+        {
+            350, 395, 30, 30,
+            "Amfora grega",
+            "As amforas eram recipientes utilizados pelos gregos antigos para armazenar e transportar produtos como vinho, azeite e alimentos. Muitas eram decoradas com cenas mitologicas, esportivas e do cotidiano."
+        },
+        {
+            1150, 320, 30, 30,
+            "Escudo hoplita",
+            "Os hoplitas eram soldados da Grecia Antiga. Eles utilizavam escudos grandes e arredondados, chamados hoplons ou aspides, para se proteger durante as batalhas e formar uma defesa coletiva."
+        },
+        {
+            1600, 395, 30, 30,
+            "Pergaminho filosofico",
+            "A Grecia Antiga foi um importante centro de desenvolvimento da filosofia. Pensadores como Socrates, Platao e Aristoteles refletiram sobre temas como conhecimento, politica, etica e a natureza do mundo."
+        }
+    };
+
     bool objetosEncontrados[3] = { false, false, false };
 
     // CHEFE FINAL - ANUBIS
@@ -139,6 +241,11 @@ int main()
     bool pertoDoChefe = false;
     bool mostrarDialogoChefe = false;
     
+    // CHEFE FINAL - MINOTAURO
+    float minotauroX = 2335;
+    float minotauroY = 460;
+    float larguraMinotauro = 30;
+    float alturaMinotauro = 40;
 
     int objetoAtual = -1;
 
@@ -180,6 +287,43 @@ int main()
     // INDICE DA ALTERNATIVA CORRETA
     int respostasCorretas[4] = { 1, 2, 0, 1 };
 
+
+    // PERGUNTAS DA GRECIA ANTIGA
+    char perguntasGrecia[4][200] = {
+        "Qual era a cidade grega conhecida pelo desenvolvimento da democracia?",
+        "Quem era o deus grego dos mares?",
+        "Qual era o principal objetivo dos Jogos Olimpicos na Grecia Antiga?",
+        "Quem foi um importante filosofo grego, mestre de Platao?"
+    };
+
+    // ALTERNATIVAS DA GRECIA
+    char alternativasGrecia[4][3][120] = {
+        {
+            "Esparta",
+            "Atenas",
+            "Troia"
+        },
+        {
+            "Zeus",
+            "Hades",
+            "Poseidon"
+        },
+        {
+            "Homenagear os deuses por meio de competicoes",
+            "Escolher os reis das cidades",
+            "Treinar soldados para as guerras"
+        },
+        {
+            "Aristoteles",
+            "Socrates",
+            "Herodoto"
+        }
+    };
+
+    // RESPOSTAS CORRETAS DA GRECIA
+    int respostasCorretasGrecia[4] = { 1, 2, 0, 1 };
+
+
     int perguntaAtual = 0;
 
 
@@ -190,14 +334,15 @@ int main()
     int pontuacao = 0;
     int vidas = 5;
     int recorde = carregar_recorde();
+    int faseAtual = 1; // 1 = Egito, 2 = Grecia
     bool invulneravel = false;
     float tempoInvulneravel = 0;
     bool personagemVisivel = true;
     bool derrota = false;
     bool estaNoChao = false;
 
-    // PLATAFORMAS (originais)
-    plataforma plataformas[9] = {
+    // PLATAFORMAS EGITO ANTIGO
+    plataforma plataformasEgito[9] = {
     { 0, 500, 150, 15 },
     { 200, 425, 350, 15 },
     { 500, 500, 300, 15 },
@@ -208,34 +353,93 @@ int main()
     { 2050, 425, 250, 15 },
     { 2300, 500, 100, 15 }
     };
-    int qtdPlataformas = sizeof(plataformas) / sizeof(plataformas[0]);
 
-    // OBSTACULOS (originais)
-    obstaculo obstaculos[1] = {
-    { 650, 470, 40, 30 }
+    // PLATAFORMAS DA GRECIA ANTIGA
+    plataforma plataformasGrecia[9] = {
+        { 0, 500, 150, 15 },
+        { 200, 425, 350, 15 },
+        { 500, 500, 300, 15 },
+        { 800, 425, 250, 15 },
+        { 1100, 350, 300, 15 },
+        { 1450, 425, 350, 15 },
+        { 1800, 500, 250, 15 },
+        { 2050, 425, 250, 15 },
+        { 2300, 500, 100, 15 }
     };
-    int qtdObstaculos = sizeof(obstaculos) / sizeof(obstaculos[0]);
+
+    int qtdPlataformas = 9;
+
+    // OBSTACULOS EGITO ANTIGO
+    obstaculo obstaculosEgito[1] = {
+        { 650, 470, 40, 30 }
+    };
+
+    // OBSTACULOS DA GRECIA ANTIGA
+    obstaculo obstaculosGrecia[1] = {
+        { 650, 470, 40, 30 }
+    };
+
+    // DADOS ATIVOS DA FASE
+    objetoInterativo* objetosHistoricos = objetosEgito;
+    plataforma* plataformas = plataformasEgito;
+    obstaculo* obstaculos = obstaculosEgito;
+
+    // CARREGA OS DADOS INICIAIS DO EGITO
+    carregar_fase(
+        faseAtual,
+        objetosHistoricos,
+        plataformas,
+        obstaculos,
+        &chefeX,
+        &chefeY,
+        &larguraCenario
+    );
+
+    int qtdObstaculos = 1;
+
     bool obstaculoSuperado = false;
 
     // Reinicia apenas os dados da partida
     // (mantem plataformas, obstaculos e configuracoes originais)
-#define REINICIAR_PARTIDA() do { \
-        posicaoX = 50; posicaoY = 300; \
-        velocidadeVertical = 0; cameraX = 0; vidas = 5; \
-        pontuacao = 0; \
-        obstaculoSuperado = false; \
-        invulneravel = false; tempoInvulneravel = 0; \
-        personagemVisivel = true; derrota = false; estaNoChao = false; \
-        mostrarInformacao = false; pertoDoObjeto = false; \
-        objetosEncontrados[0] = false; \
-        objetosEncontrados[1] = false; \
-        objetosEncontrados[2] = false; \
-        chefeDesbloqueado = false; \
-        pertoDoChefe = false; \
-        mostrarDialogoChefe = false; \
-        objetoAtual = -1; \
-        perguntaAtual = 0; \
-    } while (0)
+
+        #define REINICIAR_PARTIDA() do { \
+            posicaoX = 50; \
+            posicaoY = 300; \
+            velocidadeVertical = 0; \
+            cameraX = 0; \
+            vidas = 5; \
+            pontuacao = 0; \
+            faseAtual = 1; \
+            objetosHistoricos = objetosEgito; \
+            plataformas = plataformasEgito; \
+            obstaculos = obstaculosEgito; \
+            carregar_fase( \
+                faseAtual, \
+                objetosHistoricos, \
+                plataformas, \
+                obstaculos, \
+                &chefeX, \
+                &chefeY, \
+                &larguraCenario \
+            ); \
+            obstaculoSuperado = false; \
+            invulneravel = false; \
+            tempoInvulneravel = 0; \
+            personagemVisivel = true; \
+            derrota = false; \
+            estaNoChao = false; \
+            mostrarInformacao = false; \
+            pertoDoObjeto = false; \
+            objetosEncontrados[0] = false; \
+            objetosEncontrados[1] = false; \
+            objetosEncontrados[2] = false; \
+            chefeDesbloqueado = false; \
+            pertoDoChefe = false; \
+            mostrarDialogoChefe = false; \
+            objetoAtual = -1; \
+            perguntaAtual = 0; \
+        } while (0)
+
 
     while (jogoEmExecucao) {
         ALLEGRO_EVENT evento;
@@ -302,15 +506,79 @@ int main()
                 if (alternativaEscolhida != -1) {
 
                     // RESPOSTA CORRETA
-                    if (alternativaEscolhida == respostasCorretas[perguntaAtual]) {
+                    int respostaCorretaAtual;
+
+                    if (faseAtual == 1) {
+                        respostaCorretaAtual = respostasCorretas[perguntaAtual];
+                    }
+                    else {
+                        respostaCorretaAtual = respostasCorretasGrecia[perguntaAtual];
+                    }
+
+                    if (alternativaEscolhida == respostaCorretaAtual) {
 
                         perguntaAtual++;
 
                         // ACERTOU AS QUATRO PERGUNTAS
                         if (perguntaAtual >= 4) {
-                            pontuacao += 200; // BONUS POR FINALIZAR O QUESTIONARIO
-                            atualizar_recorde(pontuacao, &recorde);
-                            estado = VITORIA;
+
+                            pontuacao += 200;
+
+                            if (faseAtual == 1) {
+
+                                // AVANCA DO EGITO PARA A GRECIA
+                                faseAtual = 2;
+
+                                // TROCA OS DADOS ATIVOS PARA A GRECIA
+                                objetosHistoricos = objetosGrecia;
+                                plataformas = plataformasGrecia;
+                                obstaculos = obstaculosGrecia;
+
+                                carregar_fase(
+                                    faseAtual,
+                                    objetosHistoricos,
+                                    plataformas,
+                                    obstaculos,
+                                    &chefeX,
+                                    &chefeY,
+                                    &larguraCenario
+                                );
+
+                                // REINICIA OS OBJETOS DA NOVA FASE
+                                objetosEncontrados[0] = false;
+                                objetosEncontrados[1] = false;
+                                objetosEncontrados[2] = false;
+
+                                // REINICIA O ESTADO DO CHEFE
+                                chefeDesbloqueado = false;
+                                pertoDoChefe = false;
+                                mostrarDialogoChefe = false;
+
+                                // REPOSICIONA O PERSONAGEM
+                                posicaoX = 50;
+                                posicaoY = 300;
+                                velocidadeVertical = 0;
+                                cameraX = 0;
+
+                                // REINICIA CONTROLES DA FASE
+                                objetoAtual = -1;
+                                perguntaAtual = 0;
+                                mostrarInformacao = false;
+                                pertoDoObjeto = false;
+                                obstaculoSuperado = false;
+                                invulneravel = false;
+                                tempoInvulneravel = 0;
+                                personagemVisivel = true;
+                                estaNoChao = false;
+
+                                estado = TRANSICAO_FASE;
+                            }
+
+                            else {
+                                // FINALIZOU AS DUAS FASES
+                                atualizar_recorde(pontuacao, &recorde);
+                                estado = VITORIA;
+                            }
                         }
                     }
 
@@ -330,6 +598,10 @@ int main()
                 evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                 estado = GAMEPLAY;
             }
+            else if (estado == TRANSICAO_FASE &&
+                evento.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+                estado = GAMEPLAY;
+                }
         }
 
         // CLIQUES DOS BOTOES
@@ -569,7 +841,9 @@ int main()
                     al_map_rgb(255, 220, 0),
                     640, 80,
                     ALLEGRO_ALIGN_CENTER,
-                    "Desafio do Egito Antigo"
+                    faseAtual == 1
+                    ? "Desafio do Egito Antigo"
+                    : "Desafio da Grecia Antiga"
                 );
 
                 al_draw_textf(
@@ -590,14 +864,28 @@ int main()
                     4 - perguntaAtual
                 );
 
+
                 if (perguntaAtual < 4) {
+
+                    char (*perguntasAtuais)[200];
+                    char (*alternativasAtuais)[3][120];
+
+                    if (faseAtual == 1) {
+                        perguntasAtuais = perguntas;
+                        alternativasAtuais = alternativas;
+                    }
+                    else {
+                        perguntasAtuais = perguntasGrecia;
+                        alternativasAtuais = alternativasGrecia;
+                    }
+
                     al_draw_multiline_text(
                         fonte,
                         al_map_rgb(255, 255, 255),
                         640, 230,
                         900, 35,
                         ALLEGRO_ALIGN_CENTER,
-                        perguntas[perguntaAtual]
+                        perguntasAtuais[perguntaAtual]
                     );
 
                     for (int i = 0; i < 3; i++) {
@@ -608,7 +896,7 @@ int main()
                             ALLEGRO_ALIGN_CENTER,
                             "%d - %s",
                             i + 1,
-                            alternativas[perguntaAtual][i]
+                            alternativasAtuais[perguntaAtual][i]
                         );
                     }
                 }
@@ -637,9 +925,53 @@ int main()
                 );
             }
 
+            else if (estado == TRANSICAO_FASE) {
+
+                al_clear_to_color(al_map_rgb(30, 25, 50));
+
+                al_draw_text(
+                    titulo,
+                    al_map_rgb(255, 220, 0),
+                    640, 180,
+                    ALLEGRO_ALIGN_CENTER,
+                    "FASE 1 CONCLUIDA!"
+                );
+
+                al_draw_text(
+                    titulo,
+                    al_map_rgb(255, 255, 255),
+                    640, 250,
+                    ALLEGRO_ALIGN_CENTER,
+                    "BEM-VINDO A GRECIA ANTIGA!"
+                );
+
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(220, 220, 220),
+                    640, 330,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Voce venceu Anubis e agora enfrentara o Minotauro."
+                );
+
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 220, 0),
+                    640, 430,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pressione ENTER para continuar"
+                );
+            }
+
             // DEMAIS TELAS E GAMEPLAY
             else {
-                al_clear_to_color(al_map_rgb(5, 207, 250));
+                if (faseAtual == 1) {
+                    // Ceu do Egito
+                    al_clear_to_color(al_map_rgb(240, 190, 120));
+                }
+                else {
+                    // Ceu da Grecia
+                    al_clear_to_color(al_map_rgb(120, 190, 220));
+                }
 
                 int quantidadeEncontrada = 0;
 
@@ -676,6 +1008,17 @@ int main()
                     recorde
                 );
 
+                // INDICADOR DA FASE ATUAL
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    640, 30,
+                    ALLEGRO_ALIGN_CENTER,
+                    faseAtual == 1
+                    ? "FASE 1 - EGITO ANTIGO"
+                    : "FASE 2 - GRECIA ANTIGA"
+                );
+
                 // INDICADOR DE VIDAS
                 al_draw_text(
                     fonte,
@@ -696,16 +1039,34 @@ int main()
                     );
                 }
 
-                desenhar_plataformas(plataformas, qtdPlataformas, cameraX);
-                desenhar_obstaculos(obstaculos, qtdObstaculos, cameraX);
+                desenhar_plataformas(
+                    plataformas,
+                    qtdPlataformas,
+                    cameraX,
+                    faseAtual
+                );
 
-                // DESENHA O ANUBIS
+                desenhar_obstaculos(
+                    obstaculos,
+                    qtdObstaculos,
+                    cameraX,
+                    faseAtual
+                );
+
+                // DESENHA O CHEFE DA FASE ATUAL
                 ALLEGRO_COLOR corChefe;
 
-                if (chefeDesbloqueado)
-                    corChefe = al_map_rgb(120, 20, 150); // Roxo: desbloqueado
-                else
-                    corChefe = al_map_rgb(80, 80, 80); // Cinza: bloqueado
+                if (!chefeDesbloqueado) {
+                    corChefe = al_map_rgb(80, 80, 80);
+                }
+                else if (faseAtual == 1) {
+                    // Anubis: roxo
+                    corChefe = al_map_rgb(120, 20, 150);
+                }
+                else {
+                    // Minotauro: marrom-avermelhado
+                    corChefe = al_map_rgb(150, 60, 40);
+                }
 
                 al_draw_filled_rectangle(
                     chefeX - cameraX,
@@ -736,7 +1097,8 @@ int main()
                         cameraX,
                         pertoDoObjeto && objetoAtual == i,
                         objetosEncontrados[i],
-                        fonte
+                        fonte,
+                        faseAtual
                     );
                 }
 
@@ -748,7 +1110,9 @@ int main()
                         chefeX - cameraX,
                         chefeY - 25,
                         0,
-                        "E - Falar com Anubis"
+                        faseAtual == 1
+                        ? "E - Falar com Anubis"
+                        : "E - Falar com Minotauro"
                     );
                 }
 
@@ -776,17 +1140,21 @@ int main()
                         al_map_rgb(255, 200, 0),
                         640, 240,
                         ALLEGRO_ALIGN_CENTER,
-                        "ANUBIS - GUARDIAO DO SUBMUNDO"
+                        faseAtual == 1
+                        ? "ANUBIS - GUARDIAO DO SUBMUNDO"
+                        : "MINOTAURO - GUARDIAO DO LABIRINTO"
                     );
 
                     // Mensagem
                     al_draw_multiline_text(
                         fonte,
                         al_map_rgb(255, 255, 255),
-                        360, 300,
-                        560, 35,
+                        340, 300,
+                        600, 28,
                         ALLEGRO_ALIGN_LEFT,
-                        "Voce conseguiu encontrar os tres artefatos do Egito Antigo. Mas ainda precisa provar que aprendeu sobre essa civilizacao. Prepare-se para o desafio!"
+                        faseAtual == 1
+                        ? "Voce encontrou os tres artefatos do Egito Antigo. Agora precisa provar seus conhecimentos para enfrentar Anubis!"
+                        : "Voce encontrou os tres artefatos da Grecia Antiga. Agora precisa provar seus conhecimentos para enfrentar o Minotauro!"
                     );
 
                     // Instrucao
@@ -803,7 +1171,8 @@ int main()
                     desenhar_caixa_informacao(
                         objetosHistoricos[objetoAtual],
                         fonte,
-                        mostrarInformacao
+                        mostrarInformacao,
+                        faseAtual
                     );
                 }
 
