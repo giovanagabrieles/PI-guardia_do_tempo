@@ -24,6 +24,40 @@ typedef enum {
 } EstadoJogo;
 
 
+int carregar_recorde() {
+    FILE* arquivo = NULL;
+    int recorde = 0;
+
+    if (fopen_s(&arquivo, "recorde.txt", "r") == 0 && arquivo != NULL) {
+
+        if (fscanf_s(arquivo, "%d", &recorde) != 1 || recorde < 0) {
+            recorde = 0;
+        }
+
+        fclose(arquivo);
+    }
+
+    return recorde;
+}
+
+
+void atualizar_recorde(int pontuacao, int* recorde) {
+
+    if (pontuacao > *recorde) {
+
+        FILE* arquivo = NULL;
+
+        if (fopen_s(&arquivo, "recorde.txt", "w") == 0 && arquivo != NULL) {
+
+            fprintf(arquivo, "%d", pontuacao);
+            fclose(arquivo);
+
+            *recorde = pontuacao;
+        }
+    }
+}
+
+
 
 
 int main()
@@ -155,6 +189,7 @@ int main()
 
     int pontuacao = 0;
     int vidas = 5;
+    int recorde = carregar_recorde();
     bool invulneravel = false;
     float tempoInvulneravel = 0;
     bool personagemVisivel = true;
@@ -274,6 +309,7 @@ int main()
                         // ACERTOU AS QUATRO PERGUNTAS
                         if (perguntaAtual >= 4) {
                             pontuacao += 200; // BONUS POR FINALIZAR O QUESTIONARIO
+                            atualizar_recorde(pontuacao, &recorde);
                             estado = VITORIA;
                         }
                     }
@@ -283,6 +319,7 @@ int main()
                         vidas--;
 
                         if (vidas <= 0) {
+                            atualizar_recorde(pontuacao, &recorde);
                             estado = DERROTA;
                         }
                     }
@@ -481,6 +518,9 @@ int main()
                 // PERDA DE VIDAS
                 if (vidas <= 0) {
                     derrota = true;
+
+                    atualizar_recorde(pontuacao, &recorde);
+
                     estado = DERROTA;
                 }
 
@@ -625,6 +665,15 @@ int main()
                     0,
                     "Pontuacao: %d",
                     pontuacao
+                );
+
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    20, 110,
+                    0,
+                    "Recorde: %d",
+                    recorde
                 );
 
                 // INDICADOR DE VIDAS
