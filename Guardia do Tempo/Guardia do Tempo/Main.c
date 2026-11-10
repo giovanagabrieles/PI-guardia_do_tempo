@@ -95,6 +95,17 @@ int main()
 
     bool objetosEncontrados[3] = { false, false, false };
 
+    // CHEFE FINAL - ANUBIS
+    float chefeX = 2335;
+    float chefeY = 460;
+    float larguraChefe = 30;
+    float alturaChefe = 40;
+
+    bool chefeDesbloqueado = false;
+    bool pertoDoChefe = false;
+    bool mostrarDialogoChefe = false;
+    
+
     int objetoAtual = -1;
 
     bool mostrarInformacao = false;
@@ -180,6 +191,9 @@ int main()
         objetosEncontrados[0] = false; \
         objetosEncontrados[1] = false; \
         objetosEncontrados[2] = false; \
+        chefeDesbloqueado = false; \
+        pertoDoChefe = false; \
+        mostrarDialogoChefe = false; \
         objetoAtual = -1; \
         perguntaAtual = 0; \
     } while (0)
@@ -217,9 +231,18 @@ int main()
 
                         objetoAtual = -1;
                     }
+                    else if (mostrarDialogoChefe) {
+                        mostrarDialogoChefe = false;
+                        perguntaAtual = 0;
+                        estado = QUESTIONARIO;
+                    }
+                    else if (pertoDoChefe && chefeDesbloqueado) {
+                        mostrarDialogoChefe = true;
+                    }
                     else if (pertoDoObjeto) {
                         mostrarInformacao = true;
                     }
+                    
                 }
             }
 
@@ -333,7 +356,7 @@ int main()
                     }
                 }
           
-                if (!mostrarInformacao) {  // BLOQUEIA TODA MOVIMENTAÇÃO DO PERSONAGEM CASO A CAIXA DE TEXTO ESTIVER ABERTA
+                if (!mostrarInformacao && !mostrarDialogoChefe) {  // BLOQUEIA TODA MOVIMENTAÇÃO DO PERSONAGEM CASO A CAIXA DE TEXTO ESTIVER ABERTA
                 // MOVIMENTACAO PERSONAGEM
                 ALLEGRO_KEYBOARD_STATE teclado;
                 al_get_keyboard_state(&teclado);
@@ -362,6 +385,24 @@ int main()
                         objetoAtual = i;
                         break;
                     }
+                }
+
+                // VERIFICA SE OS TRES OBJETOS FORAM ENCONTRADOS
+                chefeDesbloqueado =
+                    objetosEncontrados[0] &&
+                    objetosEncontrados[1] &&
+                    objetosEncontrados[2];
+
+                // VERIFICA A PROXIMIDADE DO ANUBIS
+                pertoDoChefe = false;
+
+                if (chefeDesbloqueado &&
+                    posicaoX + larguraPersonagem >= chefeX - 40 &&
+                    posicaoX <= chefeX + larguraChefe + 40 &&
+                    posicaoY + alturaPersonagem >= chefeY - 30 &&
+                    posicaoY <= chefeY + alturaChefe + 30) {
+
+                    pertoDoChefe = true;
                 }
 
                 // GRAVIDADE E MOVIMENTO VERTICAL
@@ -430,19 +471,6 @@ int main()
                     cameraFoco = larguraCenario - 1280;
                 cameraX += (cameraFoco - cameraX) * 0.1;
 
-                // VERIFICA SE OS TRES OBJETOS FORAM ENCONTRADOS
-                bool todosObjetosEncontrados =
-                    objetosEncontrados[0] &&
-                    objetosEncontrados[1] &&
-                    objetosEncontrados[2];
-
-                // AO CHEGAR AO FINAL, INICIA O QUESTIONARIO
-                if (posicaoX >= larguraCenario - larguraPersonagem &&
-                    todosObjetosEncontrados) {
-
-                    perguntaAtual = 0;
-                    estado = QUESTIONARIO;
-                }
                 }
             }
         }
@@ -588,6 +616,31 @@ int main()
                 desenhar_plataformas(plataformas, qtdPlataformas, cameraX);
                 desenhar_obstaculos(obstaculos, qtdObstaculos, cameraX);
 
+                // DESENHA O ANUBIS
+                ALLEGRO_COLOR corChefe;
+
+                if (chefeDesbloqueado)
+                    corChefe = al_map_rgb(120, 20, 150); // Roxo: desbloqueado
+                else
+                    corChefe = al_map_rgb(80, 80, 80); // Cinza: bloqueado
+
+                al_draw_filled_rectangle(
+                    chefeX - cameraX,
+                    chefeY,
+                    chefeX + larguraChefe - cameraX,
+                    chefeY + alturaChefe,
+                    corChefe
+                );
+
+                al_draw_rectangle(
+                    chefeX - cameraX,
+                    chefeY,
+                    chefeX + larguraChefe - cameraX,
+                    chefeY + alturaChefe,
+                    al_map_rgb(255, 200, 0),
+                    2
+                );
+
                 desenhar_personagem(
                     posicaoX, posicaoY,
                     larguraPersonagem, alturaPersonagem,
@@ -599,7 +652,67 @@ int main()
                         objetosHistoricos[i],
                         cameraX,
                         pertoDoObjeto && objetoAtual == i,
+                        objetosEncontrados[i],
                         fonte
+                    );
+                }
+
+                // AVISO PARA FALAR COM ANUBIS
+                if (pertoDoChefe && !mostrarInformacao && !mostrarDialogoChefe) {
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(255, 255, 255),
+                        chefeX - cameraX,
+                        chefeY - 25,
+                        0,
+                        "E - Falar com Anubis"
+                    );
+                }
+
+                // DIALOGO INICIAL DO ANUBIS
+                if (mostrarDialogoChefe) {
+
+                    // Fundo da caixa
+                    al_draw_filled_rounded_rectangle(
+                        300, 200, 980, 520,
+                        20, 20,
+                        al_map_rgba(0, 0, 0, 230)
+                    );
+
+                    // Borda dourada
+                    al_draw_rounded_rectangle(
+                        300, 200, 980, 520,
+                        20, 20,
+                        al_map_rgb(255, 200, 0),
+                        3
+                    );
+
+                    // Titulo
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(255, 200, 0),
+                        640, 240,
+                        ALLEGRO_ALIGN_CENTER,
+                        "ANUBIS - GUARDIAO DO SUBMUNDO"
+                    );
+
+                    // Mensagem
+                    al_draw_multiline_text(
+                        fonte,
+                        al_map_rgb(255, 255, 255),
+                        360, 300,
+                        560, 35,
+                        ALLEGRO_ALIGN_LEFT,
+                        "Voce conseguiu encontrar os tres artefatos do Egito Antigo. Mas ainda precisa provar que aprendeu sobre essa civilizacao. Prepare-se para o desafio!"
+                    );
+
+                    // Instrucao
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(255, 220, 0),
+                        640, 470,
+                        ALLEGRO_ALIGN_CENTER,
+                        "Aperte E para iniciar a batalha"
                     );
                 }
 
