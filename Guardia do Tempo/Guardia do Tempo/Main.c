@@ -6,22 +6,11 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
-// PLATAFORMAS
-typedef struct {
-    float x, y, largura, altura;
-} plataforma;
+#include "Interface.h"
+#include "Cenario.h"
+#include "Personagem.h"
+#include "Objetos.h"
 
-// OBSTACULOS
-typedef struct {
-    float x, y, largura, altura;
-} obstaculo;
-
-// OBJETO INTERATIVO
-typedef struct {
-    float x, y, largura, altura;
-    char titulo[60];
-    char descricao[300];
-} objetoInterativo;
 
 // ESTADOS DO JOGO
 typedef enum {
@@ -29,30 +18,13 @@ typedef enum {
     CARREGAR_JOGO,
     GAMEPLAY,
     PAUSA,
+    QUESTIONARIO,
     DERROTA,
     VITORIA
 } EstadoJogo;
 
-// Desenha os botoes do menu e das outras telas
-void desenhar_botao(float x, float y, float largura, float altura,
-    const char texto[], ALLEGRO_FONT* fonte, ALLEGRO_COLOR cor)
-{
-    al_draw_filled_rounded_rectangle(
-        x, y, x + largura, y + altura, 30, 30, cor);
 
-    al_draw_text(fonte, al_map_rgb(255, 255, 255),
-        x + largura / 2,
-        y + altura / 2 - al_get_font_line_height(fonte) / 2,
-        ALLEGRO_ALIGN_CENTER, texto);
-}
 
-// Verifica se o clique aconteceu dentro de um botao
-bool clicou_botao(int mx, int my, float x, float y,
-    float largura, float altura)
-{
-    return mx >= x && mx <= x + largura &&
-        my >= y && my <= y + altura;
-}
 
 int main()
 {
@@ -101,15 +73,81 @@ int main()
     float larguraPersonagem = 30;
     float alturaPersonagem = 40;
 
-    // TESTE DE OBJETO INTERATIVO HISTÓRICO
-    objetoInterativo objetoTeste = {
-    350, 385, 30, 30,
-    "Objeto misterioso",
-    "Este é um texto de exemplo. Uma informação histórica sera apresentada sobre este objeto. Teste 1"
+
+   // OBJETOS HISTORICOS DO EGITO ANTIGO
+    objetoInterativo objetosHistoricos[3] = {
+        {
+            350, 395, 30, 30,
+            "Papiro com hieroglifos",
+            "Os egipcios desenvolveram um sistema de escrita chamado hieroglifos. Eles utilizavam desenhos e simbolos para representar palavras, sons e ideias. Escreviam em paredes, monumentos e folhas feitas de papiro."
+        },
+        {
+            1150, 320, 30, 30,
+            "Vaso canopico",
+            "Os antigos egipcios acreditavam na vida apos a morte e praticavam a mumificacao. Durante esse processo, determinados orgaos eram retirados e guardados em recipientes especiais chamados vasos canopicos."
+        },
+        {
+            1600, 395, 30, 30,
+            "Miniatura de um shaduf",
+            "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf, um dispositivo que ajudava a elevar agua do rio ou de canais para irrigar as plantacoes."
+        }
     };
+
+    bool objetosEncontrados[3] = { false, false, false };
+
+    // CHEFE FINAL - ANUBIS
+    float chefeX = 2335;
+    float chefeY = 460;
+    float larguraChefe = 30;
+    float alturaChefe = 40;
+
+    bool chefeDesbloqueado = false;
+    bool pertoDoChefe = false;
+    bool mostrarDialogoChefe = false;
+    
+
+    int objetoAtual = -1;
 
     bool mostrarInformacao = false;
     bool pertoDoObjeto = false;
+
+    // PERGUNTAS DO CHEFE FINAL
+    char perguntas[4][200] = {
+        "Qual era o nome do sistema de escrita egipcio?",
+        "Para que serviam os vasos canopicos?",
+        "Por que o rio Nilo era importante?",
+        "Qual era a funcao do shaduf?"
+    };
+
+    // ALTERNATIVAS DAS PERGUNTAS
+    char alternativas[4][3][120] = {
+        {
+            "Alfabeto romano",
+            "Hieroglifos",
+            "Escrita medieval"
+        },
+        {
+            "Guardar alimentos",
+            "Armazenar agua",
+            "Guardar orgaos retirados na mumificacao"
+        },
+        {
+            "Deixar o solo fertil para a agricultura",
+            "Construir apenas barcos",
+            "Impedir o crescimento das plantacoes"
+        },
+        {
+            "Escrever simbolos religiosos",
+            "Elevar agua para irrigar as plantacoes",
+            "Construir piramides"
+        }
+    };
+
+    // INDICE DA ALTERNATIVA CORRETA
+    int respostasCorretas[4] = { 1, 2, 0, 1 };
+
+    int perguntaAtual = 0;
+
 
     // CAMERA E CENARIO
     float cameraX = 0;
@@ -123,19 +161,22 @@ int main()
     bool estaNoChao = false;
 
     // PLATAFORMAS (originais)
-    plataforma plataformas[6] = {
-        { 0, 500, 150, 15 },
-        { 200, 425, 350, 15 },
-        { 500, 500, 300, 15 },
-        { 800, 425, 250, 15 },
-        { 1100, 350, 300, 15 },
-        { 1450, 425, 350, 15 }
+    plataforma plataformas[9] = {
+    { 0, 500, 150, 15 },
+    { 200, 425, 350, 15 },
+    { 500, 500, 300, 15 },
+    { 800, 425, 250, 15 },
+    { 1100, 350, 300, 15 },
+    { 1450, 425, 350, 15 },
+    { 1800, 500, 250, 15 },
+    { 2050, 425, 250, 15 },
+    { 2300, 500, 100, 15 }
     };
     int qtdPlataformas = sizeof(plataformas) / sizeof(plataformas[0]);
 
     // OBSTACULOS (originais)
     obstaculo obstaculos[1] = {
-        { 650, 650, 40, 30 }
+    { 650, 470, 40, 30 }
     };
     int qtdObstaculos = sizeof(obstaculos) / sizeof(obstaculos[0]);
 
@@ -147,6 +188,14 @@ int main()
         invulneravel = false; tempoInvulneravel = 0; \
         personagemVisivel = true; derrota = false; estaNoChao = false; \
         mostrarInformacao = false; pertoDoObjeto = false; \
+        objetosEncontrados[0] = false; \
+        objetosEncontrados[1] = false; \
+        objetosEncontrados[2] = false; \
+        chefeDesbloqueado = false; \
+        pertoDoChefe = false; \
+        mostrarDialogoChefe = false; \
+        objetoAtual = -1; \
+        perguntaAtual = 0; \
     } while (0)
 
     while (jogoEmExecucao) {
@@ -174,12 +223,66 @@ int main()
                 if (evento.keyboard.keycode == ALLEGRO_KEY_E) {
                     if (mostrarInformacao) {
                         mostrarInformacao = false;
+
+                        // Marca o objeto como encontrado
+                        if (objetoAtual != -1) {
+                            objetosEncontrados[objetoAtual] = true;
+                        }
+
+                        objetoAtual = -1;
+                    }
+                    else if (mostrarDialogoChefe) {
+                        mostrarDialogoChefe = false;
+                        perguntaAtual = 0;
+                        estado = QUESTIONARIO;
+                    }
+                    else if (pertoDoChefe && chefeDesbloqueado) {
+                        mostrarDialogoChefe = true;
                     }
                     else if (pertoDoObjeto) {
                         mostrarInformacao = true;
                     }
+                    
                 }
             }
+
+            else if (estado == QUESTIONARIO) {
+
+                int alternativaEscolhida = -1;
+
+                if (evento.keyboard.keycode == ALLEGRO_KEY_1)
+                    alternativaEscolhida = 0;
+
+                else if (evento.keyboard.keycode == ALLEGRO_KEY_2)
+                    alternativaEscolhida = 1;
+
+                else if (evento.keyboard.keycode == ALLEGRO_KEY_3)
+                    alternativaEscolhida = 2;
+
+                if (alternativaEscolhida != -1) {
+
+                    // RESPOSTA CORRETA
+                    if (alternativaEscolhida == respostasCorretas[perguntaAtual]) {
+
+                        perguntaAtual++;
+
+                        // ACERTOU AS QUATRO PERGUNTAS
+                        if (perguntaAtual >= 4) {
+                            estado = VITORIA;
+                        }
+                    }
+
+                    // RESPOSTA ERRADA
+                    else {
+                        vidas--;
+
+                        if (vidas <= 0) {
+                            estado = DERROTA;
+                        }
+                    }
+                }
+            }
+
             else if (estado == PAUSA &&
                 evento.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                 estado = GAMEPLAY;
@@ -223,6 +326,9 @@ int main()
                 else if (clicou_botao(mx, my, botaoX, 390, botaoLargura, botaoAltura))
                     estado = MENU;
             }
+            
+
+
             else if (estado == DERROTA || estado == VITORIA) {
                 if (clicou_botao(mx, my, botaoX, 350, botaoLargura, botaoAltura)) {
                     REINICIAR_PARTIDA();
@@ -250,7 +356,7 @@ int main()
                     }
                 }
           
-                if (!mostrarInformacao) {  // BLOQUEIA TODA MOVIMENTAÇÃO DO PERSONAGEM CASO A CAIXA DE TEXTO ESTIVER ABERTA
+                if (!mostrarInformacao && !mostrarDialogoChefe) {  // BLOQUEIA TODA MOVIMENTAÇÃO DO PERSONAGEM CASO A CAIXA DE TEXTO ESTIVER ABERTA
                 // MOVIMENTACAO PERSONAGEM
                 ALLEGRO_KEYBOARD_STATE teclado;
                 al_get_keyboard_state(&teclado);
@@ -263,12 +369,41 @@ int main()
                     al_key_down(&teclado, ALLEGRO_KEY_RIGHT))
                     posicaoX += velocidadeHorizontal;
 
-                // VERIFICAÇÃO SE O PERSONAGEM ESTÁ PERTO PARA INTERAGIR COM O OBJETO
-                pertoDoObjeto =
-                    posicaoX + larguraPersonagem >= objetoTeste.x - 40 &&
-                    posicaoX <= objetoTeste.x + objetoTeste.largura + 40 &&
-                    posicaoY + alturaPersonagem >= objetoTeste.y - 30 &&
-                    posicaoY <= objetoTeste.y + objetoTeste.altura + 30;
+                // VERIFICA PROXIMIDADE DOS OBJETOS HISTORICOS
+                pertoDoObjeto = false;
+                objetoAtual = -1;
+
+                for (int i = 0; i < 3; i++) {
+
+                    if (!objetosEncontrados[i] &&
+                        posicaoX + larguraPersonagem >= objetosHistoricos[i].x - 40 &&
+                        posicaoX <= objetosHistoricos[i].x + objetosHistoricos[i].largura + 40 &&
+                        posicaoY + alturaPersonagem >= objetosHistoricos[i].y - 30 &&
+                        posicaoY <= objetosHistoricos[i].y + objetosHistoricos[i].altura + 30) {
+
+                        pertoDoObjeto = true;
+                        objetoAtual = i;
+                        break;
+                    }
+                }
+
+                // VERIFICA SE OS TRES OBJETOS FORAM ENCONTRADOS
+                chefeDesbloqueado =
+                    objetosEncontrados[0] &&
+                    objetosEncontrados[1] &&
+                    objetosEncontrados[2];
+
+                // VERIFICA A PROXIMIDADE DO ANUBIS
+                pertoDoChefe = false;
+
+                if (chefeDesbloqueado &&
+                    posicaoX + larguraPersonagem >= chefeX - 40 &&
+                    posicaoX <= chefeX + larguraChefe + 40 &&
+                    posicaoY + alturaPersonagem >= chefeY - 30 &&
+                    posicaoY <= chefeY + alturaChefe + 30) {
+
+                    pertoDoChefe = true;
+                }
 
                 // GRAVIDADE E MOVIMENTO VERTICAL
                 float posicaoYAnterior = posicaoY;
@@ -288,12 +423,18 @@ int main()
                         estaNoChao = true;
                     }
                 }
+                // PERDE VIDA AO CAIR DA TELA
+                if (posicaoY > 720) {
+                    if (!invulneravel) {
+                        vidas--;
+                        invulneravel = true;
+                        tempoInvulneravel = 0;
+                    }
 
-                // COLISAO COM CHAO
-                if (posicaoY + alturaPersonagem >= 680) {
-                    posicaoY = 680 - alturaPersonagem;
+                    posicaoX = 50;
+                    posicaoY = 300;
                     velocidadeVertical = 0;
-                    estaNoChao = true;
+                    cameraX = 0;
                 }
 
                 // COLISAO COM OBSTACULO
@@ -330,10 +471,6 @@ int main()
                     cameraFoco = larguraCenario - 1280;
                 cameraX += (cameraFoco - cameraX) * 0.1;
 
-                // Condicao provisoria de vitoria: chegar ao final do cenario.
-                // Substituir pela coleta do fragmento quando ela for implementada.
-                if (posicaoX >= larguraCenario - larguraPersonagem)
-                    estado = VITORIA;
                 }
             }
         }
@@ -345,154 +482,256 @@ int main()
         if (redesenhar && al_is_event_queue_empty(fila)) {
             redesenhar = false;
 
+            // MENU E CARREGAMENTO
             if (estado == MENU || estado == CARREGAR_JOGO) {
                 al_clear_to_color(al_map_rgb(190, 150, 210));
 
                 if (estado == MENU) {
-                    al_draw_text(titulo, al_map_rgb(0, 0, 255),
-                        640, 120, ALLEGRO_ALIGN_CENTER, "GUARDIA DO TEMPO");
-
-                    desenhar_botao(botaoX, 250, botaoLargura, botaoAltura,
-                        "NOVO JOGO", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 340, botaoLargura, botaoAltura,
-                        "CARREGAR JOGO", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 430, botaoLargura, botaoAltura,
-                        "SAIR", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_menu(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
                 else {
-                    al_draw_text(titulo, al_map_rgb(0, 0, 255),
-                        640, 150, ALLEGRO_ALIGN_CENTER, "CARREGAR JOGO");
-                    desenhar_botao(botaoX, 250, botaoLargura, botaoAltura,
-                        "JOGO 01", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 340, botaoLargura, botaoAltura,
-                        "JOGO 02", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 430, botaoLargura, botaoAltura,
-                        "VOLTAR", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_carregar_jogo(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
             }
-            else {
-                // CENARIO E PERSONAGEM: desenho original da equipe
-                al_clear_to_color(al_map_rgb(5, 207, 250));
-                al_draw_line(-cameraX, 680, larguraCenario - cameraX, 680,
-                    al_map_rgb(255, 255, 255), 2.0);
 
-                al_draw_textf(fonte, al_map_rgb(255, 255, 255),
-                    20, 20, 0, "Vidas: %d", vidas);
+            // QUESTIONARIO
+            else if (estado == QUESTIONARIO) {
 
-                for (int i = 0; i < qtdPlataformas; i++) {
-                    al_draw_filled_rectangle(
-                        plataformas[i].x - cameraX, plataformas[i].y,
-                        plataformas[i].x + plataformas[i].largura - cameraX,
-                        plataformas[i].y + plataformas[i].altura,
-                        al_map_rgb(31, 150, 12));
-                }
+                al_clear_to_color(al_map_rgb(30, 25, 50));
 
-                for (int i = 0; i < qtdObstaculos; i++) {
-                    al_draw_filled_rectangle(
-                        obstaculos[i].x - cameraX, obstaculos[i].y,
-                        obstaculos[i].x + obstaculos[i].largura - cameraX,
-                        obstaculos[i].y + obstaculos[i].altura,
-                        al_map_rgb(200, 0, 0));
-                }
-
-                if (personagemVisivel) {
-                    al_draw_filled_rectangle(
-                        posicaoX - cameraX, posicaoY,
-                        posicaoX + larguraPersonagem - cameraX,
-                        posicaoY + alturaPersonagem,
-                        al_map_rgb(237, 61, 17));
-                }
-
-                // DESENHA O OBJETO INTERATIVO
-                al_draw_filled_rectangle(
-                    objetoTeste.x - cameraX,
-                    objetoTeste.y,
-                    objetoTeste.x + objetoTeste.largura - cameraX,
-                    objetoTeste.y + objetoTeste.altura,
-                    al_map_rgb(255, 200, 0)
+                al_draw_text(
+                    titulo,
+                    al_map_rgb(255, 220, 0),
+                    640, 80,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Desafio do Egito Antigo"
                 );
 
-                // MOSTRA INSTRUÇÃO PARA INTERAGIR
-                if (pertoDoObjeto && !mostrarInformacao) {
-                    al_draw_text(
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    640, 160,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pergunta %d de 4",
+                    perguntaAtual + 1
+                );
+
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 100, 100),
+                    640, 195,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Energia do chefe: %d/4",
+                    4 - perguntaAtual
+                );
+
+                if (perguntaAtual < 4) {
+                    al_draw_multiline_text(
                         fonte,
                         al_map_rgb(255, 255, 255),
-                        objetoTeste.x - cameraX,
-                        objetoTeste.y - 25,
-                        0,
-                        "E - Interagir"
+                        640, 230,
+                        900, 35,
+                        ALLEGRO_ALIGN_CENTER,
+                        perguntas[perguntaAtual]
+                    );
+
+                    for (int i = 0; i < 3; i++) {
+                        al_draw_textf(
+                            fonte,
+                            al_map_rgb(255, 220, 150),
+                            640, 360 + i * 65,
+                            ALLEGRO_ALIGN_CENTER,
+                            "%d - %s",
+                            i + 1,
+                            alternativas[perguntaAtual][i]
+                        );
+                    }
+                }
+
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    640, 590,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Vidas restantes:"
+                );
+
+                for (int i = 0; i < vidas; i++) {
+                    al_draw_filled_circle(
+                        600 + i * 20, 630, 7,
+                        al_map_rgb(220, 40, 40)
                     );
                 }
 
-                // CAIXA DE INFORMAÇÃO HISTÓRICA
-                if (mostrarInformacao) {
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(200, 200, 200),
+                    640, 675,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pressione 1, 2 ou 3 para responder"
+                );
+            }
 
+            // DEMAIS TELAS E GAMEPLAY
+            else {
+                al_clear_to_color(al_map_rgb(5, 207, 250));
+
+                int quantidadeEncontrada = 0;
+
+                for (int i = 0; i < 3; i++) {
+                    if (objetosEncontrados[i]) {
+                        quantidadeEncontrada++;
+                    }
+                }
+
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    20, 50,
+                    0,
+                    "Objetos: %d/3",
+                    quantidadeEncontrada
+                );
+
+                // INDICADOR DE VIDAS
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    1120, 30,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Vidas:"
+                );
+
+                for (int i = 0; i < 5; i++) {
+                    ALLEGRO_COLOR corVida = (i < vidas)
+                        ? al_map_rgb(220, 40, 40)
+                        : al_map_rgb(120, 120, 120);
+
+                    al_draw_filled_circle(
+                        1070 + i * 25, 65, 8,
+                        corVida
+                    );
+                }
+
+                desenhar_plataformas(plataformas, qtdPlataformas, cameraX);
+                desenhar_obstaculos(obstaculos, qtdObstaculos, cameraX);
+
+                // DESENHA O ANUBIS
+                ALLEGRO_COLOR corChefe;
+
+                if (chefeDesbloqueado)
+                    corChefe = al_map_rgb(120, 20, 150); // Roxo: desbloqueado
+                else
+                    corChefe = al_map_rgb(80, 80, 80); // Cinza: bloqueado
+
+                al_draw_filled_rectangle(
+                    chefeX - cameraX,
+                    chefeY,
+                    chefeX + larguraChefe - cameraX,
+                    chefeY + alturaChefe,
+                    corChefe
+                );
+
+                al_draw_rectangle(
+                    chefeX - cameraX,
+                    chefeY,
+                    chefeX + larguraChefe - cameraX,
+                    chefeY + alturaChefe,
+                    al_map_rgb(255, 200, 0),
+                    2
+                );
+
+                desenhar_personagem(
+                    posicaoX, posicaoY,
+                    larguraPersonagem, alturaPersonagem,
+                    cameraX, personagemVisivel
+                );
+
+                for (int i = 0; i < 3; i++) {
+                    desenhar_objeto_interativo(
+                        objetosHistoricos[i],
+                        cameraX,
+                        pertoDoObjeto && objetoAtual == i,
+                        objetosEncontrados[i],
+                        fonte
+                    );
+                }
+
+                // AVISO PARA FALAR COM ANUBIS
+                if (pertoDoChefe && !mostrarInformacao && !mostrarDialogoChefe) {
+                    al_draw_text(
+                        fonte,
+                        al_map_rgb(255, 255, 255),
+                        chefeX - cameraX,
+                        chefeY - 25,
+                        0,
+                        "E - Falar com Anubis"
+                    );
+                }
+
+                // DIALOGO INICIAL DO ANUBIS
+                if (mostrarDialogoChefe) {
+
+                    // Fundo da caixa
                     al_draw_filled_rounded_rectangle(
-                        340, 200, 940, 520,
+                        300, 200, 980, 520,
                         20, 20,
                         al_map_rgba(0, 0, 0, 230)
                     );
 
+                    // Borda dourada
                     al_draw_rounded_rectangle(
-                        340, 200, 940, 520,
+                        300, 200, 980, 520,
                         20, 20,
                         al_map_rgb(255, 200, 0),
                         3
                     );
 
+                    // Titulo
                     al_draw_text(
                         fonte,
-                        al_map_rgb(255, 220, 0),
+                        al_map_rgb(255, 200, 0),
                         640, 240,
                         ALLEGRO_ALIGN_CENTER,
-                        objetoTeste.titulo
+                        "ANUBIS - GUARDIAO DO SUBMUNDO"
                     );
 
+                    // Mensagem
                     al_draw_multiline_text(
                         fonte,
                         al_map_rgb(255, 255, 255),
-                        390, 300,
-                        500, 30,
-                        0,
-                        objetoTeste.descricao
+                        360, 300,
+                        560, 35,
+                        ALLEGRO_ALIGN_LEFT,
+                        "Voce conseguiu encontrar os tres artefatos do Egito Antigo. Mas ainda precisa provar que aprendeu sobre essa civilizacao. Prepare-se para o desafio!"
                     );
 
+                    // Instrucao
                     al_draw_text(
                         fonte,
-                        al_map_rgb(200, 200, 200),
+                        al_map_rgb(255, 220, 0),
                         640, 470,
                         ALLEGRO_ALIGN_CENTER,
-                        "Aperte E para fechar"
+                        "Aperte E para iniciar a batalha"
+                    );
+                }
+
+                if (mostrarInformacao && objetoAtual != -1) {
+                    desenhar_caixa_informacao(
+                        objetosHistoricos[objetoAtual],
+                        fonte,
+                        mostrarInformacao
                     );
                 }
 
                 if (estado == PAUSA) {
-                    al_draw_filled_rectangle(0, 0, 1280, 720,
-                        al_map_rgba(0, 0, 0, 160));
-                    al_draw_text(titulo, al_map_rgb(255, 255, 255),
-                        640, 190, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
-                    desenhar_botao(botaoX, 300, botaoLargura, botaoAltura,
-                        "CONTINUAR", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 390, botaoLargura, botaoAltura,
-                        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_pausa(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
                 else if (estado == DERROTA) {
-                    al_clear_to_color(al_map_rgb(82, 7, 7));
-                    al_draw_text(titulo, al_map_rgb(250, 250, 250),
-                        640, 240, ALLEGRO_ALIGN_CENTER, "FIM DE JOGO!");
-                    desenhar_botao(botaoX, 350, botaoLargura, botaoAltura,
-                        "TENTAR NOVAMENTE", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 440, botaoLargura, botaoAltura,
-                        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_derrota(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
                 else if (estado == VITORIA) {
-                    al_clear_to_color(al_map_rgb(5, 100, 60));
-                    al_draw_text(titulo, al_map_rgb(255, 255, 255),
-                        640, 240, ALLEGRO_ALIGN_CENTER, "FASE CONCLUIDA!");
-                    desenhar_botao(botaoX, 350, botaoLargura, botaoAltura,
-                        "JOGAR NOVAMENTE", fonte, al_map_rgb(0, 0, 255));
-                    desenhar_botao(botaoX, 440, botaoLargura, botaoAltura,
-                        "MENU PRINCIPAL", fonte, al_map_rgb(0, 0, 255));
+                    desenhar_tela_vitoria(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
             }
 
