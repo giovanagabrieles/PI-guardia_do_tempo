@@ -15,9 +15,9 @@ typedef struct {
 // FUNCOES DE DESENHO
 void desenhar_objeto_interativo(objetoInterativo objeto,
     float cameraX, bool pertoDoObjeto, bool objetoEncontrado,
-    ALLEGRO_FONT* fonte);
+    ALLEGRO_FONT* fonte, int faseAtual);
 
 void desenhar_caixa_informacao(objetoInterativo objeto,
-    ALLEGRO_FONT* fonte, bool mostrarInformacao);
+    ALLEGRO_FONT* fonte, bool mostrarInformacao, int faseAtual);
 
 #endif

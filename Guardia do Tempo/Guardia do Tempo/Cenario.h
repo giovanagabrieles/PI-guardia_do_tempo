@@ -14,10 +14,18 @@ typedef struct {
 } obstaculo;
 
 // FUNCOES DE DESENHO
-void desenhar_plataformas(plataforma plataformas[],
-    int qtdPlataformas, float cameraX);
+void desenhar_plataformas(
+    plataforma plataformas[],
+    int qtdPlataformas,
+    float cameraX,
+    int faseAtual
+);
 
-void desenhar_obstaculos(obstaculo obstaculos[],
-    int qtdObstaculos, float cameraX);
+void desenhar_obstaculos(
+    obstaculo obstaculos[],
+    int qtdObstaculos,
+    float cameraX,
+    int faseAtual
+);
 
 #endif
