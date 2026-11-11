@@ -14,7 +14,7 @@ void desenhar_objeto_interativo(objetoInterativo objeto,
         corObjeto = al_map_rgb(120, 120, 120); // Cinza
     }
     else if (faseAtual == 1) {
-        corObjeto = al_map_rgb(218, 165, 32); // Dourado - Egito
+        corObjeto = al_map_rgb(245, 211, 77); // Dourado - Egito
     }
     else {
         corObjeto = al_map_rgb(160, 82, 45); // Terracota - Grecia

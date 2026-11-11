@@ -6,6 +6,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_image.h>
 
 #include "Interface.h"
 #include "Cenario.h"
@@ -163,10 +164,20 @@ int main()
     al_init_primitives_addon();
     al_init_font_addon();
     al_init_ttf_addon();
+    al_init_image_addon();
 
     // JANELA: mantida em 1280 x 720
     ALLEGRO_DISPLAY* display = al_create_display(1280, 720);
     if (!display) return -1;
+
+    // CARREGA O FUNDO DO EGITO
+    ALLEGRO_BITMAP* fundoEgito = al_load_bitmap(
+        "assets/egito/fundo_egito.png"
+    );
+
+    if (!fundoEgito) {
+        printf("Erro ao carregar o fundo do Egito!\n");
+    }
 
     ALLEGRO_FONT* fonte = al_load_ttf_font("arial.ttf", 22, 0);
     ALLEGRO_FONT* titulo = al_load_ttf_font("arial.ttf", 42, 0);
@@ -1059,12 +1070,19 @@ int main()
 
             // DEMAIS TELAS E GAMEPLAY
             else {
+
                 if (faseAtual == 1) {
-                    // Ceu do Egito
+
+                    // FUNDO DO EGITO
                     al_clear_to_color(al_map_rgb(240, 190, 120));
+
+                    if (fundoEgito != NULL) {
+                        al_draw_bitmap(fundoEgito, -cameraX, 0, 0);
+                    }
                 }
                 else {
-                    // Ceu da Grecia
+
+                    // CEU DA GRECIA
                     al_clear_to_color(al_map_rgb(120, 190, 220));
                 }
 
@@ -1363,6 +1381,11 @@ int main()
     // FINALIZACAO E LIBERACAO DE RECURSOS
     al_destroy_timer(timer);
     al_destroy_event_queue(fila);
+   
+    if (fundoEgito != NULL) {
+        al_destroy_bitmap(fundoEgito);
+    }
+
     al_destroy_display(display);
 
     if (titulo != fonte) al_destroy_font(titulo);

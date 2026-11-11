@@ -12,7 +12,7 @@ void desenhar_plataformas(
 
     if (faseAtual == 1) {
         // Egito: areia e pedra
-        corPlataforma = al_map_rgb(194, 154, 90);
+        corPlataforma = al_map_rgb(121, 80, 47);
     }
     else {
         // Grecia: marmore
@@ -38,7 +38,7 @@ void desenhar_obstaculos(obstaculo obstaculos[],
 
     if (faseAtual == 1) {
         // Egito: pedra escura
-        corObstaculo = al_map_rgb(110, 90, 70);
+        corObstaculo = al_map_rgb(1181, 45, 36);
     }
     else {
         // Grecia: pedra avermelhada
