@@ -34,6 +34,7 @@ typedef struct {
 } ataqueChefe;
 
 #define MAX_ATAQUES_CHEFE 5
+#define MAX_FRAGMENTOS_TEMPORAIS 2
 
 int carregar_recorde() {
     FILE* arquivo = NULL;
@@ -201,43 +202,9 @@ int main()
     float alturaPersonagem = 40;
 
 
-   // OBJETOS HISTORICOS DO EGITO ANTIGO
-    objetoInterativo objetosEgito[3] = {
-        {
-            350, 395, 30, 30,
-            "Papiro com hieroglifos",
-            "Os egipcios desenvolveram um sistema de escrita chamado hieroglifos. Eles utilizavam desenhos e simbolos para representar palavras, sons e ideias. Escreviam em paredes, monumentos e folhas feitas de papiro."
-        },
-        {
-            1150, 320, 30, 30,
-            "Vaso canopico",
-            "Os antigos egipcios acreditavam na vida apos a morte e praticavam a mumificacao. Durante esse processo, determinados orgaos eram retirados e guardados em recipientes especiais chamados vasos canopicos."
-        },
-        {
-            1600, 395, 30, 30,
-            "Miniatura de um shaduf",
-            "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf, um dispositivo que ajudava a elevar agua do rio ou de canais para irrigar as plantacoes."
-        }
-    };
-
-    // OBJETOS HISTORICOS DA GRECIA ANTIGA
-    objetoInterativo objetosGrecia[3] = {
-        {
-            350, 395, 30, 30,
-            "Amfora grega",
-            "As amforas eram recipientes utilizados pelos gregos antigos para armazenar e transportar produtos como vinho, azeite e alimentos. Muitas eram decoradas com cenas mitologicas, esportivas e do cotidiano."
-        },
-        {
-            1150, 320, 30, 30,
-            "Escudo hoplita",
-            "Os hoplitas eram soldados da Grecia Antiga. Eles utilizavam escudos grandes e arredondados, chamados hoplons ou aspides, para se proteger durante as batalhas e formar uma defesa coletiva."
-        },
-        {
-            1600, 395, 30, 30,
-            "Pergaminho filosofico",
-            "A Grecia Antiga foi um importante centro de desenvolvimento da filosofia. Pensadores como Socrates, Platao e Aristoteles refletiram sobre temas como conhecimento, politica, etica e a natureza do mundo."
-        }
-    };
+    // OBJETOS HISTORICOS
+    objetoInterativo objetosEgito[3];
+    objetoInterativo objetosGrecia[3];
 
     bool objetosEncontrados[3] = { false, false, false };
 
@@ -354,7 +321,6 @@ int main()
     int recorde = carregar_recorde();
     int faseAtual = 1; // 1 = Egito, 2 = Grecia
     int fragmentosTemporais = 0;
-    #define MAX_FRAGMENTOS_TEMPORAIS 2
     bool invulneravel = false;
     float tempoInvulneravel = 0;
     bool personagemVisivel = true;
@@ -362,42 +328,18 @@ int main()
     bool estaNoChao = false;
 
     // PLATAFORMAS EGITO ANTIGO
-    plataforma plataformasEgito[9] = {
-    { 0, 500, 150, 15 },
-    { 200, 425, 350, 15 },
-    { 500, 500, 300, 15 },
-    { 800, 425, 250, 15 },
-    { 1100, 350, 300, 15 },
-    { 1450, 425, 350, 15 },
-    { 1800, 500, 250, 15 },
-    { 2050, 425, 250, 15 },
-    { 2300, 500, 100, 15 }
-    };
+    plataforma plataformasEgito[9];
 
     // PLATAFORMAS DA GRECIA ANTIGA
-    plataforma plataformasGrecia[9] = {
-        { 0, 500, 150, 15 },
-        { 200, 425, 350, 15 },
-        { 500, 500, 300, 15 },
-        { 800, 425, 250, 15 },
-        { 1100, 350, 300, 15 },
-        { 1450, 425, 350, 15 },
-        { 1800, 500, 250, 15 },
-        { 2050, 425, 250, 15 },
-        { 2300, 500, 100, 15 }
-    };
+    plataforma plataformasGrecia[9];
 
     int qtdPlataformas = 9;
 
     // OBSTACULOS EGITO ANTIGO
-    obstaculo obstaculosEgito[1] = {
-        { 650, 470, 40, 30 }
-    };
+    obstaculo obstaculosEgito[1];
 
     // OBSTACULOS DA GRECIA ANTIGA
-    obstaculo obstaculosGrecia[1] = {
-        { 650, 470, 40, 30 }
-    };
+    obstaculo obstaculosGrecia[1];
 
     // DADOS ATIVOS DA FASE
     objetoInterativo* objetosHistoricos = objetosEgito;
@@ -672,7 +614,7 @@ int main()
                     estado = GAMEPLAY;
                 }
                 else if (clicou_botao(mx, my, botaoX, 340, botaoLargura, botaoAltura)) {
-                    printf("Ainda nao ha um segundo jogo salvo.\\n");
+                    printf("Ainda nao ha um segundo jogo salvo.\n");
                 }
                 else if (clicou_botao(mx, my, botaoX, 430, botaoLargura, botaoAltura)) {
                     estado = MENU;
