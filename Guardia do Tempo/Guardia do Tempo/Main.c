@@ -22,7 +22,8 @@ typedef enum {
     QUESTIONARIO,
     TRANSICAO_FASE,
     DERROTA,
-    VITORIA
+    VITORIA,
+    JORNADA_INCOMPLETA
 } EstadoJogo;
 
 // ESTRUTURA DOS PROJETEIS DO CHEFE
@@ -613,7 +614,14 @@ int main()
                             else {
                                 // FINALIZOU AS DUAS FASES
                                 atualizar_recorde(pontuacao, &recorde);
-                                estado = VITORIA;
+
+                                // VERIFICA SE CUMPRIU OS REQUISITOS PARA A VITORIA
+                                if (pontuacao >= 800 && vidas >= 2 && fragmentosTemporais == 2) {
+                                    estado = VITORIA;
+                                }
+                                else {
+                                    estado = JORNADA_INCOMPLETA;
+                                }
                             }
                         }
                     }
@@ -680,12 +688,24 @@ int main()
             
 
 
-            else if (estado == DERROTA || estado == VITORIA) {
+            // CLIQUES DA TELA DE DERROTA
+            else if (estado == DERROTA) {
                 if (clicou_botao(mx, my, botaoX, 350, botaoLargura, botaoAltura)) {
                     REINICIAR_PARTIDA();
                     estado = GAMEPLAY;
                 }
                 else if (clicou_botao(mx, my, botaoX, 440, botaoLargura, botaoAltura)) {
+                    estado = MENU;
+                }
+            }
+
+            // CLIQUES DAS TELAS DE VITORIA E JORNADA INCOMPLETA
+            else if (estado == VITORIA || estado == JORNADA_INCOMPLETA) {
+                if (clicou_botao(mx, my, botaoX, 500, botaoLargura, botaoAltura)) {
+                    REINICIAR_PARTIDA();
+                    estado = GAMEPLAY;
+                }
+                else if (clicou_botao(mx, my, botaoX, 590, botaoLargura, botaoAltura)) {
                     estado = MENU;
                 }
             }
@@ -1379,7 +1399,18 @@ int main()
                     desenhar_tela_derrota(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
                 else if (estado == VITORIA) {
-                    desenhar_tela_vitoria(titulo, fonte, botaoX, botaoLargura, botaoAltura);
+                    desenhar_tela_vitoria(
+                        titulo, fonte,
+                        botaoX, botaoLargura, botaoAltura,
+                        pontuacao, fragmentosTemporais, vidas
+                    );
+                }
+                else if (estado == JORNADA_INCOMPLETA) {
+                    desenhar_tela_jornada_incompleta(
+                        titulo, fonte,
+                        botaoX, botaoLargura, botaoAltura,
+                        pontuacao, fragmentosTemporais, vidas
+                    );
                 }
             }
 

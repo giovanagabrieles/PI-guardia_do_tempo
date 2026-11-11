@@ -29,8 +29,26 @@ void desenhar_tela_derrota(ALLEGRO_FONT* titulo,
     ALLEGRO_FONT* fonte, float botaoX,
     float botaoLargura, float botaoAltura);
 
-void desenhar_tela_vitoria(ALLEGRO_FONT* titulo,
-    ALLEGRO_FONT* fonte, float botaoX,
-    float botaoLargura, float botaoAltura);
+void desenhar_tela_vitoria(
+    ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte,
+    float botaoX,
+    float botaoLargura,
+    float botaoAltura,
+    int pontuacao,
+    int fragmentosTemporais,
+    int vidas
+);
+
+void desenhar_tela_jornada_incompleta(
+    ALLEGRO_FONT* titulo,
+    ALLEGRO_FONT* fonte,
+    float botaoX,
+    float botaoLargura,
+    float botaoAltura,
+    int pontuacao,
+    int fragmentosTemporais,
+    int vidas
+);
 
 #endif
