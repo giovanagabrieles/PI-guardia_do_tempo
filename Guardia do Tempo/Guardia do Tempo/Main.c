@@ -352,6 +352,8 @@ int main()
     int vidas = 5;
     int recorde = carregar_recorde();
     int faseAtual = 1; // 1 = Egito, 2 = Grecia
+    int fragmentosTemporais = 0;
+    #define MAX_FRAGMENTOS_TEMPORAIS 2
     bool invulneravel = false;
     float tempoInvulneravel = 0;
     bool personagemVisivel = true;
@@ -426,6 +428,7 @@ int main()
             cameraX = 0; \
             vidas = 5; \
             pontuacao = 0; \
+            fragmentosTemporais = 0; \
             faseAtual = 1; \
             objetosHistoricos = objetosEgito; \
             plataformas = plataformasEgito; \
@@ -544,6 +547,11 @@ int main()
                         if (perguntaAtual >= 4) {
 
                             pontuacao += 200;
+
+                            // GANHA UM FRAGMENTO TEMPORAL AO CONCLUIR A FASE
+                            if (fragmentosTemporais < MAX_FRAGMENTOS_TEMPORAIS) {
+                                fragmentosTemporais++;
+                            }
 
                             if (faseAtual == 1) {
 
@@ -1106,6 +1114,7 @@ int main()
                     }
                 }
 
+                // OBJETOS HISTÓRICOS ENCONTRADOS 
                 al_draw_textf(
                     fonte,
                     al_map_rgb(255, 255, 255),
@@ -1115,6 +1124,18 @@ int main()
                     quantidadeEncontrada
                 );
 
+                // FRAGMENTOS TEMPORAIS
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(100, 220, 255),
+                    20, 140,
+                    0,
+                    "Fragmentos Temporais: %d/%d",
+                    fragmentosTemporais,
+                    MAX_FRAGMENTOS_TEMPORAIS
+                );
+
+                //PONTUACAO
                 al_draw_textf(
                     fonte,
                     al_map_rgb(255, 220, 0),
@@ -1123,7 +1144,7 @@ int main()
                     "Pontuacao: %d",
                     pontuacao
                 );
-
+                //RECORDE
                 al_draw_textf(
                     fonte,
                     al_map_rgb(255, 255, 255),
@@ -1152,7 +1173,7 @@ int main()
                     ALLEGRO_ALIGN_CENTER,
                     "Vidas:"
                 );
-
+                //VIDA
                 for (int i = 0; i < 5; i++) {
                     ALLEGRO_COLOR corVida = (i < vidas)
                         ? al_map_rgb(220, 40, 40)
@@ -1161,6 +1182,30 @@ int main()
                     al_draw_filled_circle(
                         1070 + i * 25, 65, 8,
                         corVida
+                    );
+                }
+
+                // INDICADOR DE FRAGMENTOS TEMPORAIS
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    1120, 95,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Fragmentos:"
+                );
+
+                //FRAGMENTOS TEMPORAIS
+                for (int i = 0; i < MAX_FRAGMENTOS_TEMPORAIS; i++) {
+
+                    ALLEGRO_COLOR corFragmento = (i < fragmentosTemporais)
+                        ? al_map_rgb(0, 180, 255)       // Conquistado
+                        : al_map_rgb(100, 100, 100);    // Nao conquistado
+
+                    al_draw_filled_circle(
+                        1100 + i * 40,
+                        130,
+                        10,
+                        corFragmento
                     );
                 }
 
