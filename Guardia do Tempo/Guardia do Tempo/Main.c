@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -24,6 +25,14 @@ typedef enum {
     VITORIA
 } EstadoJogo;
 
+// ESTRUTURA DOS PROJETEIS DO CHEFE
+typedef struct {
+    float x, y;
+    float velocidadeX, velocidadeY;
+    bool ativo;
+} ataqueChefe;
+
+#define MAX_ATAQUES_CHEFE 5
 
 int carregar_recorde() {
     FILE* arquivo = NULL;
@@ -240,6 +249,14 @@ int main()
     bool chefeDesbloqueado = false;
     bool pertoDoChefe = false;
     bool mostrarDialogoChefe = false;
+
+    // ATAQUES DO CHEFE
+    ataqueChefe ataquesChefe[MAX_ATAQUES_CHEFE] = { 0 };
+
+    float tempoAtaqueChefe = 0;
+    float intervaloAtaqueChefe = 1.5;
+
+    float velocidadeAtaqueChefe = 3.0;
     
     // CHEFE FINAL - MINOTAURO
     float minotauroX = 2335;
@@ -438,6 +455,10 @@ int main()
             mostrarDialogoChefe = false; \
             objetoAtual = -1; \
             perguntaAtual = 0; \
+            tempoAtaqueChefe = 0; \
+            for (int i = 0; i < MAX_ATAQUES_CHEFE; i++) { \
+            ataquesChefe[i].ativo = false; \
+            } \
         } while (0)
 
 
@@ -553,6 +574,13 @@ int main()
                                 chefeDesbloqueado = false;
                                 pertoDoChefe = false;
                                 mostrarDialogoChefe = false;
+
+                                // REINICIA OS ATAQUES DO CHEFE
+                                tempoAtaqueChefe = 0;
+
+                                for (int i = 0; i < MAX_ATAQUES_CHEFE; i++) {
+                                    ataquesChefe[i].ativo = false;
+                                }
 
                                 // REPOSICIONA O PERSONAGEM
                                 posicaoX = 50;
@@ -670,6 +698,103 @@ int main()
                         personagemVisivel = true;
                     }
                 }
+
+                // ATAQUES DO CHEFE
+                if (chefeDesbloqueado && !mostrarInformacao && !mostrarDialogoChefe) {
+
+                    // CONTROLA O INTERVALO ENTRE OS DISPAROS
+                    tempoAtaqueChefe += 1.0 / 60.0;
+
+                    if (tempoAtaqueChefe >= intervaloAtaqueChefe) {
+
+                        // PROCURA UM ESPACO LIVRE PARA O NOVO PROJETIL
+                        for (int i = 0; i < MAX_ATAQUES_CHEFE; i++) {
+
+                            if (!ataquesChefe[i].ativo) {
+
+                                // CALCULA A DIRECAO DO JOGADOR
+                                float dx = (posicaoX + larguraPersonagem / 2) -
+                                    (chefeX + larguraChefe / 2);
+
+                                float dy = (posicaoY + alturaPersonagem / 2) -
+                                    (chefeY + alturaChefe / 2);
+
+                                float distancia = sqrtf(dx * dx + dy * dy);
+
+                                // CRIA O PROJETIL
+                                if (distancia > 0) {
+
+                                    ataquesChefe[i].x = chefeX + larguraChefe / 2 - 9;
+                                    ataquesChefe[i].y = chefeY + alturaChefe / 2 - 9;
+
+                                    ataquesChefe[i].velocidadeX =
+                                        (dx / distancia) * velocidadeAtaqueChefe;
+
+                                    ataquesChefe[i].velocidadeY =
+                                        (dy / distancia) * velocidadeAtaqueChefe;
+
+                                    ataquesChefe[i].ativo = true;
+                                }
+
+                                tempoAtaqueChefe = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // MOVIMENTACAO E COLISAO DOS ATAQUES DO CHEFE
+                for (int i = 0; i < MAX_ATAQUES_CHEFE; i++) {
+
+                    if (ataquesChefe[i].ativo) {
+
+                        // MOVIMENTA O PROJETIL
+                        ataquesChefe[i].x += ataquesChefe[i].velocidadeX;
+                        ataquesChefe[i].y += ataquesChefe[i].velocidadeY;
+
+                        // REMOVE PROJETEIS QUE SAIRAM DO CENARIO
+                        if (ataquesChefe[i].x < 0 ||
+                            ataquesChefe[i].x > larguraCenario ||
+                            ataquesChefe[i].y < -20 ||
+                            ataquesChefe[i].y > 740) {
+
+                            ataquesChefe[i].ativo = false;
+                        }
+
+                        // VERIFICA COLISAO COM O PERSONAGEM
+                        else if (
+                            posicaoX + larguraPersonagem > ataquesChefe[i].x &&
+                            posicaoX < ataquesChefe[i].x + 18 &&
+                            posicaoY + alturaPersonagem > ataquesChefe[i].y &&
+                            posicaoY < ataquesChefe[i].y + 18) {
+
+                            // O PROJETIL DESAPARECE AO ATINGIR O PERSONAGEM
+                            ataquesChefe[i].ativo = false;
+
+                            if (!invulneravel) {
+
+                                vidas--;
+                                pontuacao -= 100;
+
+                                if (pontuacao < 0) {
+                                    pontuacao = 0;
+                                }
+
+                                // ATIVA A INVULNERABILIDADE
+                                invulneravel = true;
+                                tempoInvulneravel = 0;
+                                personagemVisivel = true;
+
+                                // RETORNA O PERSONAGEM AO INICIO
+                                posicaoX = 50;
+                                posicaoY = 300;
+                                velocidadeVertical = 0;
+                                cameraX = 0;
+                            }
+                        }
+                    }
+                }
+
           
                 if (!mostrarInformacao && !mostrarDialogoChefe) {  // BLOQUEIA TODA MOVIMENTAÇÃO DO PERSONAGEM CASO A CAIXA DE TEXTO ESTIVER ABERTA
                 // MOVIMENTACAO PERSONAGEM
@@ -1084,6 +1209,32 @@ int main()
                     al_map_rgb(255, 200, 0),
                     2
                 );
+
+                // DESENHA OS ATAQUES DO CHEFE
+                for (int i = 0; i < MAX_ATAQUES_CHEFE; i++) {
+
+                    if (ataquesChefe[i].ativo) {
+
+                        // PROJETIL EM TOM VERMELHO
+                        al_draw_filled_rectangle(
+                            ataquesChefe[i].x - cameraX,
+                            ataquesChefe[i].y,
+                            ataquesChefe[i].x + 18 - cameraX,
+                            ataquesChefe[i].y + 18,
+                            al_map_rgb(220, 50, 40)
+                        );
+
+                        // CONTORNO DOURADO
+                        al_draw_rectangle(
+                            ataquesChefe[i].x - cameraX,
+                            ataquesChefe[i].y,
+                            ataquesChefe[i].x + 18 - cameraX,
+                            ataquesChefe[i].y + 18,
+                            al_map_rgb(255, 200, 0),
+                            2
+                        );
+                    }
+                }
 
                 desenhar_personagem(
                     posicaoX, posicaoY,
