@@ -100,15 +100,15 @@ void carregar_fase(
             "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf para elevar agua e irrigar as plantacoes."
         };
 
-        plataformas[0] = (plataforma){ 0, 500, 150, 15 };
-        plataformas[1] = (plataforma){ 200, 425, 350, 15 };
-        plataformas[2] = (plataforma){ 500, 500, 300, 15 };
-        plataformas[3] = (plataforma){ 800, 425, 250, 15 };
-        plataformas[4] = (plataforma){ 1100, 350, 300, 15 };
-        plataformas[5] = (plataforma){ 1450, 425, 350, 15 };
-        plataformas[6] = (plataforma){ 1800, 500, 250, 15 };
-        plataformas[7] = (plataforma){ 2050, 425, 250, 15 };
-        plataformas[8] = (plataforma){ 2300, 500, 100, 15 };
+        plataformas[0] = (plataforma){ 0, 500, 150, 25 };
+        plataformas[1] = (plataforma){ 200, 425, 350, 25 };
+        plataformas[2] = (plataforma){ 500, 500, 300, 35 };
+        plataformas[3] = (plataforma){ 800, 425, 250, 25 };
+        plataformas[4] = (plataforma){ 1100, 350, 300, 25 };
+        plataformas[5] = (plataforma){ 1450, 425, 350, 35 };
+        plataformas[6] = (plataforma){ 1800, 500, 250, 35 };
+        plataformas[7] = (plataforma){ 2050, 425, 250, 25 };
+        plataformas[8] = (plataforma){ 2300, 500, 100, 35 };
 
         obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
 
@@ -136,16 +136,18 @@ void carregar_fase(
             "Pergaminho filosofico",
             "A Grecia Antiga foi um importante centro de desenvolvimento da filosofia. Pensadores como Socrates, Platao e Aristoteles refletiram sobre conhecimento, politica e etica."
         };
+        
+        plataformas[0] = (plataforma){ 0, 500, 150, 25 };
+        plataformas[1] = (plataforma){ 200, 425, 350, 25 };
+        plataformas[2] = (plataforma){ 500, 500, 300, 35 };
+        plataformas[3] = (plataforma){ 800, 425, 250, 25 };
+        plataformas[4] = (plataforma){ 1100, 350, 300, 25 };
+        plataformas[5] = (plataforma){ 1450, 425, 350, 35 };
+        plataformas[6] = (plataforma){ 1800, 500, 250, 35 };
+        plataformas[7] = (plataforma){ 2050, 425, 250, 25 };
+        plataformas[8] = (plataforma){ 2300, 500, 100, 35 };
 
-        plataformas[0] = (plataforma){ 0, 500, 150, 15 };
-        plataformas[1] = (plataforma){ 200, 425, 350, 15 };
-        plataformas[2] = (plataforma){ 500, 500, 300, 15 };
-        plataformas[3] = (plataforma){ 800, 425, 250, 15 };
-        plataformas[4] = (plataforma){ 1100, 350, 300, 15 };
-        plataformas[5] = (plataforma){ 1450, 425, 350, 15 };
-        plataformas[6] = (plataforma){ 1800, 500, 250, 15 };
-        plataformas[7] = (plataforma){ 2050, 425, 250, 15 };
-        plataformas[8] = (plataforma){ 2300, 500, 100, 15 };
+        
 
         obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
 
@@ -172,11 +174,17 @@ int main()
 
     // CARREGA O FUNDO DO EGITO
     ALLEGRO_BITMAP* fundoEgito = al_load_bitmap(
-        "assets/egito/fundo_egito.png"
-    );
+        "assets/egito/fundo_egito.png");
+
+    ALLEGRO_BITMAP* fundoGrecia = al_load_bitmap(
+        "assets/grecia/fundo_grecia.png");
 
     if (!fundoEgito) {
         printf("Erro ao carregar o fundo do Egito!\n");
+    }
+
+    if (!fundoGrecia) {
+        printf("Erro ao carregar o fundo da Grecia!\n");
     }
 
     ALLEGRO_FONT* fonte = al_load_ttf_font("arial.ttf", 22, 0);
@@ -1080,10 +1088,12 @@ int main()
                         al_draw_bitmap(fundoEgito, -cameraX, 0, 0);
                     }
                 }
-                else {
-
-                    // CEU DA GRECIA
+                else if (faseAtual == 2) {
                     al_clear_to_color(al_map_rgb(120, 190, 220));
+
+                    if (fundoGrecia != NULL) {
+                        al_draw_bitmap(fundoGrecia, -cameraX, 0, 0);
+                    }
                 }
 
                 int quantidadeEncontrada = 0;
@@ -1384,6 +1394,10 @@ int main()
    
     if (fundoEgito != NULL) {
         al_destroy_bitmap(fundoEgito);
+    }
+
+    if (fundoGrecia != NULL) {
+        al_destroy_bitmap(fundoGrecia);
     }
 
     al_destroy_display(display);
