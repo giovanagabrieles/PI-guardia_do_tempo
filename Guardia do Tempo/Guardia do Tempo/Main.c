@@ -157,6 +157,31 @@ void carregar_fase(
     }
 }
 
+void trocar_fundo(int faseAtual, ALLEGRO_BITMAP** fundoAtual) {
+
+    // Libera o fundo que estava carregado
+    if (*fundoAtual != NULL) {
+        al_destroy_bitmap(*fundoAtual);
+        *fundoAtual = NULL;
+    }
+
+    // Carrega somente o fundo da fase atual
+    if (faseAtual == 1) {
+        *fundoAtual = al_load_bitmap(
+            "assets/egito/fundo_egito.png"
+        );
+    }
+    else if (faseAtual == 2) {
+        *fundoAtual = al_load_bitmap(
+            "assets/grecia/fundo_grecia.png"
+        );
+    }
+
+    if (*fundoAtual == NULL) {
+        printf("Erro ao carregar o fundo da fase %d!\n", faseAtual);
+    }
+}
+
 int main()
 {
     // INICIALIZACAO DO ALLEGRO
@@ -172,20 +197,10 @@ int main()
     ALLEGRO_DISPLAY* display = al_create_display(1280, 720);
     if (!display) return -1;
 
-    // CARREGA O FUNDO DO EGITO
-    ALLEGRO_BITMAP* fundoEgito = al_load_bitmap(
-        "assets/egito/fundo_egito.png");
+    // CARREGA SOMENTE O FUNDO DA FASE INICIAL
+    ALLEGRO_BITMAP* fundoAtual = NULL;
 
-    ALLEGRO_BITMAP* fundoGrecia = al_load_bitmap(
-        "assets/grecia/fundo_grecia.png");
-
-    if (!fundoEgito) {
-        printf("Erro ao carregar o fundo do Egito!\n");
-    }
-
-    if (!fundoGrecia) {
-        printf("Erro ao carregar o fundo da Grecia!\n");
-    }
+    trocar_fundo(1, &fundoAtual);
 
     ALLEGRO_FONT* fonte = al_load_ttf_font("arial.ttf", 22, 0);
     ALLEGRO_FONT* titulo = al_load_ttf_font("arial.ttf", 42, 0);
@@ -392,6 +407,7 @@ int main()
             pontuacao = 0; \
             fragmentosTemporais = 0; \
             faseAtual = 1; \
+            trocar_fundo(faseAtual, &fundoAtual);\
             objetosHistoricos = objetosEgito; \
             plataformas = plataformasEgito; \
             obstaculos = obstaculosEgito; \
@@ -519,6 +535,8 @@ int main()
 
                                 // AVANCA DO EGITO PARA A GRECIA
                                 faseAtual = 2;
+                                // TROCA O FUNDO DO EGITO PELO FUNDO DA GRECIA
+                                trocar_fundo(faseAtual, &fundoAtual);
 
                                 // TROCA OS DADOS ATIVOS PARA A GRECIA
                                 objetosHistoricos = objetosGrecia;
@@ -1079,22 +1097,18 @@ int main()
             // DEMAIS TELAS E GAMEPLAY
             else {
 
-                if (faseAtual == 1) {
 
-                    // FUNDO DO EGITO
-                    al_clear_to_color(al_map_rgb(240, 190, 120));
-
-                    if (fundoEgito != NULL) {
-                        al_draw_bitmap(fundoEgito, -cameraX, 0, 0);
+                    // DESENHA O FUNDO DA FASE ATUAL
+                    if (faseAtual == 1) {
+                        al_clear_to_color(al_map_rgb(240, 190, 120));
                     }
-                }
-                else if (faseAtual == 2) {
-                    al_clear_to_color(al_map_rgb(120, 190, 220));
-
-                    if (fundoGrecia != NULL) {
-                        al_draw_bitmap(fundoGrecia, -cameraX, 0, 0);
+                    else {
+                        al_clear_to_color(al_map_rgb(120, 190, 220));
                     }
-                }
+
+                    if (fundoAtual != NULL) {
+                        al_draw_bitmap(fundoAtual, -cameraX, 0, 0);
+                    }
 
                 int quantidadeEncontrada = 0;
 
@@ -1392,12 +1406,10 @@ int main()
     al_destroy_timer(timer);
     al_destroy_event_queue(fila);
    
-    if (fundoEgito != NULL) {
-        al_destroy_bitmap(fundoEgito);
-    }
+   
 
-    if (fundoGrecia != NULL) {
-        al_destroy_bitmap(fundoGrecia);
+    if (fundoAtual != NULL) {
+        al_destroy_bitmap(fundoAtual);
     }
 
     al_destroy_display(display);
