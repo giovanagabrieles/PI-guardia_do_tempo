@@ -6,6 +6,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_image.h>
 
 #include "Interface.h"
 #include "Cenario.h"
@@ -22,7 +23,8 @@ typedef enum {
     QUESTIONARIO,
     TRANSICAO_FASE,
     DERROTA,
-    VITORIA
+    VITORIA,
+    JORNADA_INCOMPLETA
 } EstadoJogo;
 
 // ESTRUTURA DOS PROJETEIS DO CHEFE
@@ -33,6 +35,7 @@ typedef struct {
 } ataqueChefe;
 
 #define MAX_ATAQUES_CHEFE 5
+#define MAX_FRAGMENTOS_TEMPORAIS 2
 
 int carregar_recorde() {
     FILE* arquivo = NULL;
@@ -97,15 +100,15 @@ void carregar_fase(
             "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf para elevar agua e irrigar as plantacoes."
         };
 
-        plataformas[0] = (plataforma){ 0, 500, 150, 15 };
-        plataformas[1] = (plataforma){ 200, 425, 350, 15 };
-        plataformas[2] = (plataforma){ 500, 500, 300, 15 };
-        plataformas[3] = (plataforma){ 800, 425, 250, 15 };
-        plataformas[4] = (plataforma){ 1100, 350, 300, 15 };
-        plataformas[5] = (plataforma){ 1450, 425, 350, 15 };
-        plataformas[6] = (plataforma){ 1800, 500, 250, 15 };
-        plataformas[7] = (plataforma){ 2050, 425, 250, 15 };
-        plataformas[8] = (plataforma){ 2300, 500, 100, 15 };
+        plataformas[0] = (plataforma){ 0, 500, 150, 25 };
+        plataformas[1] = (plataforma){ 200, 425, 350, 25 };
+        plataformas[2] = (plataforma){ 500, 500, 300, 35 };
+        plataformas[3] = (plataforma){ 800, 425, 250, 25 };
+        plataformas[4] = (plataforma){ 1100, 350, 300, 25 };
+        plataformas[5] = (plataforma){ 1450, 425, 350, 35 };
+        plataformas[6] = (plataforma){ 1800, 500, 250, 35 };
+        plataformas[7] = (plataforma){ 2050, 425, 250, 25 };
+        plataformas[8] = (plataforma){ 2300, 500, 100, 35 };
 
         obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
 
@@ -133,22 +136,49 @@ void carregar_fase(
             "Pergaminho filosofico",
             "A Grecia Antiga foi um importante centro de desenvolvimento da filosofia. Pensadores como Socrates, Platao e Aristoteles refletiram sobre conhecimento, politica e etica."
         };
+        
+        plataformas[0] = (plataforma){ 0, 500, 150, 25 };
+        plataformas[1] = (plataforma){ 200, 425, 350, 25 };
+        plataformas[2] = (plataforma){ 500, 500, 300, 35 };
+        plataformas[3] = (plataforma){ 800, 425, 250, 25 };
+        plataformas[4] = (plataforma){ 1100, 350, 300, 25 };
+        plataformas[5] = (plataforma){ 1450, 425, 350, 35 };
+        plataformas[6] = (plataforma){ 1800, 500, 250, 35 };
+        plataformas[7] = (plataforma){ 2050, 425, 250, 25 };
+        plataformas[8] = (plataforma){ 2300, 500, 100, 35 };
 
-        plataformas[0] = (plataforma){ 0, 500, 150, 15 };
-        plataformas[1] = (plataforma){ 200, 425, 350, 15 };
-        plataformas[2] = (plataforma){ 500, 500, 300, 15 };
-        plataformas[3] = (plataforma){ 800, 425, 250, 15 };
-        plataformas[4] = (plataforma){ 1100, 350, 300, 15 };
-        plataformas[5] = (plataforma){ 1450, 425, 350, 15 };
-        plataformas[6] = (plataforma){ 1800, 500, 250, 15 };
-        plataformas[7] = (plataforma){ 2050, 425, 250, 15 };
-        plataformas[8] = (plataforma){ 2300, 500, 100, 15 };
+        
 
         obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
 
         *chefeX = 2335;
         *chefeY = 460;
         *larguraCenario = 2400;
+    }
+}
+
+void trocar_fundo(int faseAtual, ALLEGRO_BITMAP** fundoAtual) {
+
+    // Libera o fundo que estava carregado
+    if (*fundoAtual != NULL) {
+        al_destroy_bitmap(*fundoAtual);
+        *fundoAtual = NULL;
+    }
+
+    // Carrega somente o fundo da fase atual
+    if (faseAtual == 1) {
+        *fundoAtual = al_load_bitmap(
+            "assets/egito/fundo_egito.png"
+        );
+    }
+    else if (faseAtual == 2) {
+        *fundoAtual = al_load_bitmap(
+            "assets/grecia/fundo_grecia.png"
+        );
+    }
+
+    if (*fundoAtual == NULL) {
+        printf("Erro ao carregar o fundo da fase %d!\n", faseAtual);
     }
 }
 
@@ -161,10 +191,16 @@ int main()
     al_init_primitives_addon();
     al_init_font_addon();
     al_init_ttf_addon();
+    al_init_image_addon();
 
     // JANELA: mantida em 1280 x 720
     ALLEGRO_DISPLAY* display = al_create_display(1280, 720);
     if (!display) return -1;
+
+    // CARREGA SOMENTE O FUNDO DA FASE INICIAL
+    ALLEGRO_BITMAP* fundoAtual = NULL;
+
+    trocar_fundo(1, &fundoAtual);
 
     ALLEGRO_FONT* fonte = al_load_ttf_font("arial.ttf", 22, 0);
     ALLEGRO_FONT* titulo = al_load_ttf_font("arial.ttf", 42, 0);
@@ -200,43 +236,9 @@ int main()
     float alturaPersonagem = 40;
 
 
-   // OBJETOS HISTORICOS DO EGITO ANTIGO
-    objetoInterativo objetosEgito[3] = {
-        {
-            350, 395, 30, 30,
-            "Papiro com hieroglifos",
-            "Os egipcios desenvolveram um sistema de escrita chamado hieroglifos. Eles utilizavam desenhos e simbolos para representar palavras, sons e ideias. Escreviam em paredes, monumentos e folhas feitas de papiro."
-        },
-        {
-            1150, 320, 30, 30,
-            "Vaso canopico",
-            "Os antigos egipcios acreditavam na vida apos a morte e praticavam a mumificacao. Durante esse processo, determinados orgaos eram retirados e guardados em recipientes especiais chamados vasos canopicos."
-        },
-        {
-            1600, 395, 30, 30,
-            "Miniatura de um shaduf",
-            "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf, um dispositivo que ajudava a elevar agua do rio ou de canais para irrigar as plantacoes."
-        }
-    };
-
-    // OBJETOS HISTORICOS DA GRECIA ANTIGA
-    objetoInterativo objetosGrecia[3] = {
-        {
-            350, 395, 30, 30,
-            "Amfora grega",
-            "As amforas eram recipientes utilizados pelos gregos antigos para armazenar e transportar produtos como vinho, azeite e alimentos. Muitas eram decoradas com cenas mitologicas, esportivas e do cotidiano."
-        },
-        {
-            1150, 320, 30, 30,
-            "Escudo hoplita",
-            "Os hoplitas eram soldados da Grecia Antiga. Eles utilizavam escudos grandes e arredondados, chamados hoplons ou aspides, para se proteger durante as batalhas e formar uma defesa coletiva."
-        },
-        {
-            1600, 395, 30, 30,
-            "Pergaminho filosofico",
-            "A Grecia Antiga foi um importante centro de desenvolvimento da filosofia. Pensadores como Socrates, Platao e Aristoteles refletiram sobre temas como conhecimento, politica, etica e a natureza do mundo."
-        }
-    };
+    // OBJETOS HISTORICOS
+    objetoInterativo objetosEgito[3];
+    objetoInterativo objetosGrecia[3];
 
     bool objetosEncontrados[3] = { false, false, false };
 
@@ -352,6 +354,7 @@ int main()
     int vidas = 5;
     int recorde = carregar_recorde();
     int faseAtual = 1; // 1 = Egito, 2 = Grecia
+    int fragmentosTemporais = 0;
     bool invulneravel = false;
     float tempoInvulneravel = 0;
     bool personagemVisivel = true;
@@ -359,42 +362,18 @@ int main()
     bool estaNoChao = false;
 
     // PLATAFORMAS EGITO ANTIGO
-    plataforma plataformasEgito[9] = {
-    { 0, 500, 150, 15 },
-    { 200, 425, 350, 15 },
-    { 500, 500, 300, 15 },
-    { 800, 425, 250, 15 },
-    { 1100, 350, 300, 15 },
-    { 1450, 425, 350, 15 },
-    { 1800, 500, 250, 15 },
-    { 2050, 425, 250, 15 },
-    { 2300, 500, 100, 15 }
-    };
+    plataforma plataformasEgito[9];
 
     // PLATAFORMAS DA GRECIA ANTIGA
-    plataforma plataformasGrecia[9] = {
-        { 0, 500, 150, 15 },
-        { 200, 425, 350, 15 },
-        { 500, 500, 300, 15 },
-        { 800, 425, 250, 15 },
-        { 1100, 350, 300, 15 },
-        { 1450, 425, 350, 15 },
-        { 1800, 500, 250, 15 },
-        { 2050, 425, 250, 15 },
-        { 2300, 500, 100, 15 }
-    };
+    plataforma plataformasGrecia[9];
 
     int qtdPlataformas = 9;
 
     // OBSTACULOS EGITO ANTIGO
-    obstaculo obstaculosEgito[1] = {
-        { 650, 470, 40, 30 }
-    };
+    obstaculo obstaculosEgito[1];
 
     // OBSTACULOS DA GRECIA ANTIGA
-    obstaculo obstaculosGrecia[1] = {
-        { 650, 470, 40, 30 }
-    };
+    obstaculo obstaculosGrecia[1];
 
     // DADOS ATIVOS DA FASE
     objetoInterativo* objetosHistoricos = objetosEgito;
@@ -426,7 +405,9 @@ int main()
             cameraX = 0; \
             vidas = 5; \
             pontuacao = 0; \
+            fragmentosTemporais = 0; \
             faseAtual = 1; \
+            trocar_fundo(faseAtual, &fundoAtual);\
             objetosHistoricos = objetosEgito; \
             plataformas = plataformasEgito; \
             obstaculos = obstaculosEgito; \
@@ -545,10 +526,17 @@ int main()
 
                             pontuacao += 200;
 
+                            // GANHA UM FRAGMENTO TEMPORAL AO CONCLUIR A FASE
+                            if (fragmentosTemporais < MAX_FRAGMENTOS_TEMPORAIS) {
+                                fragmentosTemporais++;
+                            }
+
                             if (faseAtual == 1) {
 
                                 // AVANCA DO EGITO PARA A GRECIA
                                 faseAtual = 2;
+                                // TROCA O FUNDO DO EGITO PELO FUNDO DA GRECIA
+                                trocar_fundo(faseAtual, &fundoAtual);
 
                                 // TROCA OS DADOS ATIVOS PARA A GRECIA
                                 objetosHistoricos = objetosGrecia;
@@ -605,7 +593,14 @@ int main()
                             else {
                                 // FINALIZOU AS DUAS FASES
                                 atualizar_recorde(pontuacao, &recorde);
-                                estado = VITORIA;
+
+                                // VERIFICA SE CUMPRIU OS REQUISITOS PARA A VITORIA
+                                if (pontuacao >= 800 && vidas >= 2 && fragmentosTemporais == 2) {
+                                    estado = VITORIA;
+                                }
+                                else {
+                                    estado = JORNADA_INCOMPLETA;
+                                }
                             }
                         }
                     }
@@ -656,7 +651,7 @@ int main()
                     estado = GAMEPLAY;
                 }
                 else if (clicou_botao(mx, my, botaoX, 340, botaoLargura, botaoAltura)) {
-                    printf("Ainda nao ha um segundo jogo salvo.\\n");
+                    printf("Ainda nao ha um segundo jogo salvo.\n");
                 }
                 else if (clicou_botao(mx, my, botaoX, 430, botaoLargura, botaoAltura)) {
                     estado = MENU;
@@ -672,12 +667,24 @@ int main()
             
 
 
-            else if (estado == DERROTA || estado == VITORIA) {
+            // CLIQUES DA TELA DE DERROTA
+            else if (estado == DERROTA) {
                 if (clicou_botao(mx, my, botaoX, 350, botaoLargura, botaoAltura)) {
                     REINICIAR_PARTIDA();
                     estado = GAMEPLAY;
                 }
                 else if (clicou_botao(mx, my, botaoX, 440, botaoLargura, botaoAltura)) {
+                    estado = MENU;
+                }
+            }
+
+            // CLIQUES DAS TELAS DE VITORIA E JORNADA INCOMPLETA
+            else if (estado == VITORIA || estado == JORNADA_INCOMPLETA) {
+                if (clicou_botao(mx, my, botaoX, 500, botaoLargura, botaoAltura)) {
+                    REINICIAR_PARTIDA();
+                    estado = GAMEPLAY;
+                }
+                else if (clicou_botao(mx, my, botaoX, 590, botaoLargura, botaoAltura)) {
                     estado = MENU;
                 }
             }
@@ -1089,14 +1096,19 @@ int main()
 
             // DEMAIS TELAS E GAMEPLAY
             else {
-                if (faseAtual == 1) {
-                    // Ceu do Egito
-                    al_clear_to_color(al_map_rgb(240, 190, 120));
-                }
-                else {
-                    // Ceu da Grecia
-                    al_clear_to_color(al_map_rgb(120, 190, 220));
-                }
+
+
+                    // DESENHA O FUNDO DA FASE ATUAL
+                    if (faseAtual == 1) {
+                        al_clear_to_color(al_map_rgb(240, 190, 120));
+                    }
+                    else {
+                        al_clear_to_color(al_map_rgb(120, 190, 220));
+                    }
+
+                    if (fundoAtual != NULL) {
+                        al_draw_bitmap(fundoAtual, -cameraX, 0, 0);
+                    }
 
                 int quantidadeEncontrada = 0;
 
@@ -1106,6 +1118,7 @@ int main()
                     }
                 }
 
+                // OBJETOS HISTÓRICOS ENCONTRADOS 
                 al_draw_textf(
                     fonte,
                     al_map_rgb(255, 255, 255),
@@ -1115,6 +1128,18 @@ int main()
                     quantidadeEncontrada
                 );
 
+                // FRAGMENTOS TEMPORAIS
+                al_draw_textf(
+                    fonte,
+                    al_map_rgb(100, 220, 255),
+                    20, 140,
+                    0,
+                    "Fragmentos Temporais: %d/%d",
+                    fragmentosTemporais,
+                    MAX_FRAGMENTOS_TEMPORAIS
+                );
+
+                //PONTUACAO
                 al_draw_textf(
                     fonte,
                     al_map_rgb(255, 220, 0),
@@ -1123,7 +1148,7 @@ int main()
                     "Pontuacao: %d",
                     pontuacao
                 );
-
+                //RECORDE
                 al_draw_textf(
                     fonte,
                     al_map_rgb(255, 255, 255),
@@ -1152,7 +1177,7 @@ int main()
                     ALLEGRO_ALIGN_CENTER,
                     "Vidas:"
                 );
-
+                //VIDA
                 for (int i = 0; i < 5; i++) {
                     ALLEGRO_COLOR corVida = (i < vidas)
                         ? al_map_rgb(220, 40, 40)
@@ -1161,6 +1186,30 @@ int main()
                     al_draw_filled_circle(
                         1070 + i * 25, 65, 8,
                         corVida
+                    );
+                }
+
+                // INDICADOR DE FRAGMENTOS TEMPORAIS
+                al_draw_text(
+                    fonte,
+                    al_map_rgb(255, 255, 255),
+                    1120, 95,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Fragmentos:"
+                );
+
+                //FRAGMENTOS TEMPORAIS
+                for (int i = 0; i < MAX_FRAGMENTOS_TEMPORAIS; i++) {
+
+                    ALLEGRO_COLOR corFragmento = (i < fragmentosTemporais)
+                        ? al_map_rgb(0, 180, 255)       // Conquistado
+                        : al_map_rgb(100, 100, 100);    // Nao conquistado
+
+                    al_draw_filled_circle(
+                        1100 + i * 40,
+                        130,
+                        10,
+                        corFragmento
                     );
                 }
 
@@ -1334,7 +1383,18 @@ int main()
                     desenhar_tela_derrota(titulo, fonte, botaoX, botaoLargura, botaoAltura);
                 }
                 else if (estado == VITORIA) {
-                    desenhar_tela_vitoria(titulo, fonte, botaoX, botaoLargura, botaoAltura);
+                    desenhar_tela_vitoria(
+                        titulo, fonte,
+                        botaoX, botaoLargura, botaoAltura,
+                        pontuacao, fragmentosTemporais, vidas
+                    );
+                }
+                else if (estado == JORNADA_INCOMPLETA) {
+                    desenhar_tela_jornada_incompleta(
+                        titulo, fonte,
+                        botaoX, botaoLargura, botaoAltura,
+                        pontuacao, fragmentosTemporais, vidas
+                    );
                 }
             }
 
@@ -1345,6 +1405,13 @@ int main()
     // FINALIZACAO E LIBERACAO DE RECURSOS
     al_destroy_timer(timer);
     al_destroy_event_queue(fila);
+   
+   
+
+    if (fundoAtual != NULL) {
+        al_destroy_bitmap(fundoAtual);
+    }
+
     al_destroy_display(display);
 
     if (titulo != fonte) al_destroy_font(titulo);
