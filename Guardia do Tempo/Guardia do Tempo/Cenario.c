@@ -38,7 +38,7 @@ void desenhar_obstaculos(obstaculo obstaculos[],
 
     if (faseAtual == 1) {
         // Egito: pedra escura
-        corObstaculo = al_map_rgb(1181, 45, 36);
+        corObstaculo = al_map_rgb(181, 45, 36);
     }
     else {
         // Grecia: pedra avermelhada

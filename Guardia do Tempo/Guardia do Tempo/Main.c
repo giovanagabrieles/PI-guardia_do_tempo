@@ -100,16 +100,41 @@ void carregar_fase(
             "O rio Nilo era essencial para o Egito Antigo. Suas cheias deixavam o solo fertil para a agricultura. Os egipcios utilizavam o shaduf para elevar agua e irrigar as plantacoes."
         };
 
-        plataformas[0] = (plataforma){ 0, 500, 150, 25 };
-        plataformas[1] = (plataforma){ 200, 425, 350, 25 };
-        plataformas[2] = (plataforma){ 500, 500, 300, 35 };
-        plataformas[3] = (plataforma){ 800, 425, 250, 25 };
-        plataformas[4] = (plataforma){ 1100, 350, 300, 25 };
-        plataformas[5] = (plataforma){ 1450, 425, 350, 35 };
-        plataformas[6] = (plataforma){ 1800, 500, 250, 35 };
-        plataformas[7] = (plataforma){ 2050, 425, 250, 25 };
-        plataformas[8] = (plataforma){ 2300, 500, 100, 35 };
+        // PLATAFORMAS DA FASE 1 - EGITO ANTIGO
 
+        plataformas[0] = (plataforma){ 0,    520, 190, 25 };
+
+        plataformas[1] = (plataforma){ 170,  430, 190, 25 };
+        plataformas[2] = (plataforma){ 170,  610, 190, 25 };
+
+        plataformas[3] = (plataforma){ 350,  520, 190, 25 };
+
+        plataformas[4] = (plataforma){ 450,  340, 190, 25 };
+        plataformas[5] = (plataforma){ 690,  250, 190, 25 };
+        plataformas[6] = (plataforma){ 690,  580, 190, 25 };
+
+        plataformas[7] = (plataforma){ 860,  490, 190, 25 };
+        plataformas[8] = (plataforma){ 1030, 400, 190, 25 };
+        plataformas[9] = (plataforma){ 1200, 550, 190, 25 };
+
+        plataformas[10] = (plataforma){ 1370, 460, 190, 25 };
+        plataformas[11] = (plataforma){ 1540, 370, 190, 25 };
+        plataformas[12] = (plataforma){ 1710, 460, 190, 25 };
+        plataformas[13] = (plataforma){ 1880, 570, 190, 25 };
+
+        plataformas[14] = (plataforma){ 2050, 480, 300, 35 };
+
+
+        // Plataformas adicionais: rotas alternativas elevadas
+
+        plataformas[15] = (plataforma){ 900,  170, 150, 25 };
+        plataformas[16] = (plataforma){ 1100, 240, 150, 25 };
+        plataformas[17] = (plataforma){ 1300, 320, 150, 25 };
+
+        plataformas[18] = (plataforma){ 1740, 290, 150, 25 };
+        plataformas[19] = (plataforma){ 1950, 390, 150, 25 };
+        
+        
         obstaculos[0] = (obstaculo){ 650, 470, 40, 30 };
 
         *chefeX = 2335;
@@ -362,12 +387,12 @@ int main()
     bool estaNoChao = false;
 
     // PLATAFORMAS EGITO ANTIGO
-    plataforma plataformasEgito[9];
+    plataforma plataformasEgito[20];
 
     // PLATAFORMAS DA GRECIA ANTIGA
-    plataforma plataformasGrecia[9];
+    plataforma plataformasGrecia[15];
 
-    int qtdPlataformas = 9;
+    int qtdPlataformas = 20;
 
     // OBSTACULOS EGITO ANTIGO
     obstaculo obstaculosEgito[1];
@@ -407,6 +432,7 @@ int main()
             pontuacao = 0; \
             fragmentosTemporais = 0; \
             faseAtual = 1; \
+            qtdPlataformas = 20; \
             trocar_fundo(faseAtual, &fundoAtual);\
             objetosHistoricos = objetosEgito; \
             plataformas = plataformasEgito; \
@@ -535,6 +561,7 @@ int main()
 
                                 // AVANCA DO EGITO PARA A GRECIA
                                 faseAtual = 2;
+                                qtdPlataformas = 9;
                                 // TROCA O FUNDO DO EGITO PELO FUNDO DA GRECIA
                                 trocar_fundo(faseAtual, &fundoAtual);
 
